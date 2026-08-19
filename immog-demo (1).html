@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ImmoG — Démo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50: "#eff6ff", 100: "#dbeafe", 200: "#bfdbfe", 300: "#93c5fd",
+            400: "#60a5fa", 500: "#3b82f6", 600: "#2563eb", 700: "#1d4ed8",
+            800: "#1e40af", 900: "#1e3a8a"
+          },
+          sky: { 50: "#f0f9ff", 100: "#e0f2fe", 300: "#7dd3fc", 500: "#0ea5e9" },
+          ink: { 50:"#f8fafc",100:"#f1f5f9",200:"#e2e8f0",300:"#cbd5e1",400:"#94a3b8",500:"#64748b",600:"#475569",700:"#334155",800:"#1e293b",900:"#0f172a" }
+        },
+        fontFamily: { sans: ["Inter", "ui-sans-serif", "system-ui"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .nav-item.active { background:#eff6ff; color:#1d4ed8; font-weight:600; }
+  .nav-item.active svg { stroke:#1d4ed8; }
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+</style>
+</head>
+<body class="bg-ink-50 text-ink-800">
+
+<!-- ===================== LOGIN VIEW ===================== -->
+<div id="view-login" class="view active min-h-screen">
+  <div class="grid lg:grid-cols-2 min-h-screen">
+    <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-700 to-brand-900 text-white p-12">
+      <div class="flex items-center gap-2 text-lg font-bold">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+        ImmoG
+      </div>
+      <div>
+        <p class="text-3xl font-semibold leading-snug max-w-md">Toute la gestion de votre agence immobilière, simplement.</p>
+        <p class="text-brand-100 mt-4 max-w-sm text-sm">Biens, locataires, loyers, paiements et comptabilité — au même endroit, à jour, accessibles partout.</p>
+      </div>
+      <p class="text-xs text-brand-200">© 2026 ImmoG</p>
+    </div>
+    <div class="flex items-center justify-center p-8">
+      <div class="w-full max-w-sm">
+        <div class="lg:hidden flex items-center gap-2 mb-10 text-brand-700 font-bold text-lg">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+          ImmoG
+        </div>
+        <h1 class="text-2xl font-semibold">Connexion</h1>
+        <p class="text-sm text-ink-500 mt-1">Accédez au tableau de bord de votre agence.</p>
+        <div class="mt-8 space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1.5">Adresse email</label>
+            <input type="email" value="oumar@terangaimmo.sn" class="w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5">Mot de passe</label>
+            <input type="password" value="••••••••" class="w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100" />
+          </div>
+          <button onclick="goApp()" class="w-full rounded-lg bg-brand-600 hover:bg-brand-700 text-white py-2.5 text-sm font-semibold transition-colors">Se connecter</button>
+        </div>
+        <p class="text-xs text-ink-400 mt-8 text-center">Démo — cliquez sur « Se connecter » pour entrer.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP SHELL ===================== -->
+<div id="view-app" class="view min-h-screen">
+  <div class="flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="w-60 shrink-0 border-r border-ink-200 bg-white flex flex-col">
+      <div class="px-5 py-5 border-b border-ink-200 flex items-center gap-2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+        <div>
+          <p class="font-bold text-brand-700 leading-none">ImmoG</p>
+          <p class="text-xs text-ink-400 mt-0.5">Teranga Immobilier</p>
+        </div>
+      </div>
+      <nav class="flex-1 px-2.5 py-3 space-y-0.5 text-sm" id="nav">
+        <!-- injected by JS -->
+      </nav>
+      <div class="px-3 py-3.5 border-t border-ink-200 flex items-center gap-2.5">
+        <div class="h-8 w-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0">OB</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium truncate">Oumar Ba</p>
+          <p class="text-xs text-ink-400 truncate">Gestionnaire principal</p>
+        </div>
+        <button onclick="goLogin()" title="Déconnexion" class="text-ink-400 hover:text-red-500">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 px-8 py-8 max-w-6xl w-full">
+
+      <!-- DASHBOARD -->
+      <section id="sec-dashboard" class="section">
+        <p class="text-sm text-ink-500">Bonjour, Oumar</p>
+        <h1 class="text-2xl font-bold mt-0.5">Teranga Immobilier</h1>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div class="rounded-xl border border-ink-200 bg-white p-4">
+            <div class="h-9 w-9 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
+            <p class="text-xl font-bold mt-3">2</p><p class="text-sm text-ink-500">Biens disponibles</p>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white p-4">
+            <div class="h-9 w-9 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="17" r="2"/><path d="M7 17V6l9-2v9"/><circle cx="16" cy="15" r="2"/></svg></div>
+            <p class="text-xl font-bold mt-3">1</p><p class="text-sm text-ink-500">Biens loués</p>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white p-4">
+            <div class="h-9 w-9 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M18 9l-5 5-4-4-3 3"/></svg></div>
+            <p class="text-xl font-bold mt-3">0</p><p class="text-sm text-ink-500">Biens vendus</p>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white p-4">
+            <div class="h-9 w-9 rounded-lg bg-ink-100 text-ink-600 flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+            <p class="text-xl font-bold mt-3">1</p><p class="text-sm text-ink-500">Locataires</p>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4 mt-4">
+          <div class="rounded-xl border border-ink-200 bg-white p-4">
+            <p class="text-lg font-bold">750 000 FCFA</p><p class="text-sm text-ink-500">Loyers attendus ce mois</p>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white p-4">
+            <p class="text-lg font-bold text-brand-600">350 000 FCFA</p><p class="text-sm text-ink-500">Loyers reçus ce mois</p>
+          </div>
+        </div>
+        <h2 class="text-lg font-semibold mt-8 mb-3 flex items-center gap-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+          Loyers en retard
+        </h2>
+        <div class="rounded-xl border border-ink-200 bg-white overflow-hidden divide-y divide-ink-100">
+          <div class="flex items-center justify-between px-4 py-3 text-sm">
+            <span>Awa Diop</span><span class="text-ink-500">2/2026</span><span class="font-medium">150 000 FCFA restant</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">Partiel</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-3 text-sm">
+            <span>Awa Diop</span><span class="text-ink-500">3/2026</span><span class="font-medium">250 000 FCFA restant</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600">Impayé</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- BIENS -->
+      <section id="sec-biens" class="section hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold">Mes biens</h1>
+          <button onclick="openModal('modal-bien')" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Ajouter un bien
+          </button>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div class="rounded-xl border border-ink-200 bg-white overflow-hidden">
+            <div class="h-32 bg-gradient-to-br from-brand-100 to-sky-100"></div>
+            <div class="p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">Loué</span>
+                <span class="text-xs uppercase text-ink-400">Location</span>
+              </div>
+              <p class="font-semibold mt-2">Appartement 3 pièces — Mermoz</p>
+              <p class="text-sm text-ink-500 mt-1">Mermoz, Dakar</p>
+              <p class="font-semibold text-brand-600 mt-3">250 000 FCFA / mois</p>
+            </div>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white overflow-hidden">
+            <div class="h-32 bg-gradient-to-br from-brand-100 to-sky-100"></div>
+            <div class="p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">Disponible</span>
+                <span class="text-xs uppercase text-ink-400">Vente</span>
+              </div>
+              <p class="font-semibold mt-2">Villa 4 chambres — Ngor</p>
+              <p class="text-sm text-ink-500 mt-1">Ngor, Dakar</p>
+              <p class="font-semibold text-brand-600 mt-3">145 000 000 FCFA</p>
+            </div>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white overflow-hidden">
+            <div class="h-32 bg-gradient-to-br from-brand-100 to-sky-100"></div>
+            <div class="p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-brand-50 text-brand-700">Disponible</span>
+                <span class="text-xs uppercase text-ink-400">Vente</span>
+              </div>
+              <p class="font-semibold mt-2">Terrain 400m² — Diamniadio</p>
+              <p class="text-sm text-ink-500 mt-1">Zone B, Diamniadio</p>
+              <p class="font-semibold text-brand-600 mt-3">35 000 000 FCFA</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOCATAIRES -->
+      <section id="sec-locataires" class="section hidden">
+        <h1 class="text-2xl font-bold mb-6">Locataires</h1>
+        <div class="rounded-xl border border-ink-200 bg-white overflow-hidden">
+          <div class="grid grid-cols-5 gap-4 px-4 py-3 text-sm items-center">
+            <span class="font-medium">Awa Diop</span>
+            <span class="text-ink-500">Appartement 3 pièces — Mermoz</span>
+            <span>250 000 FCFA/mois</span>
+            <span class="font-medium">400 000 FCFA dû</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600 w-fit">Paiement dû</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAIEMENTS -->
+      <section id="sec-paiements" class="section hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold">Paiements</h1>
+          <button class="inline-flex items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Enregistrer un paiement
+          </button>
+        </div>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 rounded-xl border border-ink-200 bg-white overflow-hidden divide-y divide-ink-100">
+            <div class="flex items-center justify-between px-4 py-3 text-sm">
+              <span class="font-medium">Awa Diop</span><span class="text-ink-500">03/01/2026</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-ink-100 text-ink-600">Wave</span>
+              <span class="font-semibold">250 000 FCFA</span>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 text-sm">
+              <span class="font-medium">Awa Diop</span><span class="text-ink-500">05/02/2026</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-ink-100 text-ink-600">Espèces</span>
+              <span class="font-semibold">100 000 FCFA</span>
+            </div>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white p-5">
+            <h2 class="font-semibold mb-4">Nouveau paiement</h2>
+            <label class="block text-sm font-medium mb-1.5">Locataire</label>
+            <select class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm mb-3"><option>Awa Diop</option></select>
+            <label class="block text-sm font-medium mb-1.5">Montant (FCFA)</label>
+            <input class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm mb-3" placeholder="250000" />
+            <button class="w-full rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-2.5">Enregistrer et générer le reçu</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMPTABILITE -->
+      <section id="sec-comptabilite" class="section hidden">
+        <h1 class="text-2xl font-bold mb-6">Comptabilité</h1>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="rounded-xl border border-ink-200 bg-white p-4"><p class="text-lg font-bold">180 000 000 FCFA</p><p class="text-sm text-ink-500">Portefeuille (biens à vendre)</p></div>
+          <div class="rounded-xl border border-ink-200 bg-white p-4"><p class="text-lg font-bold text-brand-600">350 000 FCFA</p><p class="text-sm text-ink-500">Loyers encaissés</p></div>
+          <div class="rounded-xl border border-ink-200 bg-white p-4"><p class="text-lg font-bold">500 000 FCFA</p><p class="text-sm text-ink-500">Cautions encaissées</p></div>
+          <div class="rounded-xl border border-ink-200 bg-white p-4"><p class="text-lg font-bold text-red-600">400 000 FCFA</p><p class="text-sm text-ink-500">Loyers impayés</p></div>
+        </div>
+      </section>
+
+      <!-- RECUS -->
+      <section id="sec-recus" class="section hidden">
+        <h1 class="text-2xl font-bold mb-6">Reçus</h1>
+        <div class="grid lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 rounded-xl border border-ink-200 bg-white overflow-hidden divide-y divide-ink-100">
+            <div class="flex items-center justify-between px-4 py-3 text-sm">
+              <span class="text-ink-500">REC-2026-0001</span><span>Awa Diop</span><span class="font-semibold">250 000 FCFA</span>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 text-sm">
+              <span class="text-ink-500">REC-2026-0002</span><span>Awa Diop</span><span class="font-semibold">100 000 FCFA</span>
+            </div>
+          </div>
+          <div class="rounded-xl border border-ink-200 bg-white p-5">
+            <p class="text-xs uppercase tracking-widest text-brand-600 font-medium mb-3">Aperçu</p>
+            <div class="border border-ink-200 rounded-lg p-4 text-sm">
+              <p class="font-bold text-brand-700">Teranga Immobilier</p>
+              <p class="text-xs text-ink-500">Rue 12, Point E, Dakar</p>
+              <div class="my-3 border-t border-dashed border-ink-200"></div>
+              <div class="flex justify-between font-semibold text-brand-600"><span>Montant payé</span><span>250 000 FCFA</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MESSAGES -->
+      <section id="sec-messages" class="section hidden">
+        <h1 class="text-2xl font-bold mb-6">Messages</h1>
+        <div class="rounded-xl border border-ink-200 bg-white p-5 max-w-xl">
+          <label class="block text-sm font-medium mb-1.5">Message</label>
+          <textarea class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm h-24">Bonjour Awa, votre loyer du mois de Mars d'un montant de 250 000 FCFA est à régler. Merci.</textarea>
+          <button class="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2.5">Envoyer sur WhatsApp</button>
+        </div>
+      </section>
+
+      <!-- UTILISATEURS -->
+      <section id="sec-utilisateurs" class="section hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold">Utilisateurs</h1>
+          <button onclick="openModal('modal-user')" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M8.5 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6"/></svg>
+            Inviter un utilisateur
+          </button>
+        </div>
+        <div class="rounded-xl border border-ink-200 bg-white overflow-hidden divide-y divide-ink-100" id="user-list">
+          <div class="flex items-center justify-between px-4 py-3.5">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">OB</div>
+              <div><p class="text-sm font-medium">Oumar Ba</p><p class="text-xs text-ink-400">oumar@terangaimmo.sn</p></div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 font-medium">Gestionnaire principal</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-3.5">
+            <div class="flex items-center gap-3">
+              <div class="h-8 w-8 rounded-full bg-ink-100 text-ink-600 flex items-center justify-center text-xs font-bold">AF</div>
+              <div><p class="text-sm font-medium">Awa Fall</p><p class="text-xs text-ink-400">awa@terangaimmo.sn</p></div>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-ink-100 text-ink-600 font-medium">Gestionnaire secondaire</span>
+          </div>
+        </div>
+        <div class="mt-4 rounded-xl border border-ink-200 bg-white p-4 text-xs text-ink-500 max-w-xl">
+          <p><strong class="text-ink-800">Gestionnaire secondaire :</strong> peut ajouter des biens, suivre les locataires, enregistrer un paiement.</p>
+          <p class="mt-1"><strong class="text-ink-800">Gestionnaire principal uniquement :</strong> paramètres, couleurs, utilisateurs, historique financier.</p>
+        </div>
+      </section>
+
+      <!-- PARAMETRES -->
+      <section id="sec-parametres" class="section hidden">
+        <h1 class="text-2xl font-bold mb-6">Paramètres</h1>
+        <div class="rounded-xl border border-ink-200 bg-white p-5 max-w-xl space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1.5">Nom de l'agence</label>
+            <input class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm" value="Teranga Immobilier" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5">WhatsApp</label>
+            <input class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm" value="+221 77 000 00 00" />
+          </div>
+          <button class="rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2.5">Enregistrer</button>
+        </div>
+      </section>
+
+      <!-- VITRINE PUBLIQUE (aperçu) -->
+      <section id="sec-vitrine" class="section hidden">
+        <h1 class="text-2xl font-bold mb-6">Vitrine publique</h1>
+        <div class="rounded-xl border border-ink-200 overflow-hidden">
+          <div class="bg-gradient-to-br from-brand-700 to-brand-900 text-white p-10">
+            <p class="text-xs uppercase tracking-widest text-brand-200">Agence immobilière</p>
+            <h2 class="text-2xl font-bold mt-1">Teranga Immobilier</h2>
+            <p class="text-brand-100 text-sm mt-2">Vente et location de biens à Dakar et environs.</p>
+          </div>
+          <div class="bg-white p-6 grid md:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-ink-200 overflow-hidden">
+              <div class="h-24 bg-gradient-to-br from-brand-100 to-sky-100"></div>
+              <div class="p-3">
+                <p class="text-sm font-semibold">Villa 4 chambres — Ngor</p>
+                <p class="text-xs text-brand-600 font-medium mt-1">145 000 000 FCFA</p>
+              </div>
+            </div>
+            <div class="rounded-lg border border-ink-200 overflow-hidden">
+              <div class="h-24 bg-gradient-to-br from-brand-100 to-sky-100"></div>
+              <div class="p-3">
+                <p class="text-sm font-semibold">Terrain 400m² — Diamniadio</p>
+                <p class="text-xs text-brand-600 font-medium mt-1">35 000 000 FCFA</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- MODAL: ajouter un bien -->
+<div id="modal-bien" class="fixed inset-0 bg-black/30 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-xl w-full max-w-md p-6">
+    <h2 class="font-semibold text-lg mb-4">Ajouter un bien</h2>
+    <div class="space-y-3">
+      <input class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm" placeholder="Titre du bien" />
+      <select class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm"><option>Vente</option><option>Location</option></select>
+      <input class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm" placeholder="Quartier, ville" />
+      <input class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm" placeholder="Prix (FCFA)" />
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="closeModal('modal-bien')" class="flex-1 rounded-lg border border-ink-200 text-sm font-medium py-2.5">Annuler</button>
+      <button onclick="closeModal('modal-bien')" class="flex-1 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-2.5">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: inviter utilisateur -->
+<div id="modal-user" class="fixed inset-0 bg-black/30 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-xl w-full max-w-md p-6">
+    <h2 class="font-semibold text-lg mb-4">Inviter un utilisateur</h2>
+    <div class="space-y-3">
+      <input id="new-user-name" class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm" placeholder="Nom complet" />
+      <input id="new-user-email" class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm" placeholder="Email" />
+      <select id="new-user-role" class="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm">
+        <option value="Gestionnaire principal">Gestionnaire principal</option>
+        <option value="Gestionnaire secondaire" selected>Gestionnaire secondaire</option>
+      </select>
+    </div>
+    <div class="flex gap-2 mt-5">
+      <button onclick="closeModal('modal-user')" class="flex-1 rounded-lg border border-ink-200 text-sm font-medium py-2.5">Annuler</button>
+      <button onclick="addUser()" class="flex-1 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-2.5">Envoyer l'invitation</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const navItems = [
+    { id: "dashboard", label: "Tableau de bord", icon: '<path d="M3 9l9-6 9 6M4 10v10h16V10"/>' },
+    { id: "biens", label: "Biens", icon: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>' },
+    { id: "locataires", label: "Locataires", icon: '<circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>' },
+    { id: "paiements", label: "Paiements", icon: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/>' },
+    { id: "comptabilite", label: "Comptabilité", icon: '<path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>' },
+    { id: "recus", label: "Reçus", icon: '<path d="M6 2h9l5 5v15H6zM15 2v5h5"/>' },
+    { id: "messages", label: "Messages", icon: '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>' },
+    { id: "vitrine", label: "Page publique", icon: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>' },
+    { id: "utilisateurs", label: "Utilisateurs", icon: '<path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/>' },
+    { id: "parametres", label: "Paramètres", icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>' },
+  ];
+
+  const nav = document.getElementById("nav");
+  navItems.forEach((item, i) => {
+    const a = document.createElement("a");
+    a.href = "#";
+    a.className = "nav-item flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-ink-600 hover:bg-ink-50" + (i === 0 ? " active" : "");
+    a.dataset.target = item.id;
+    a.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${item.icon}</svg>${item.label}`;
+    a.onclick = (e) => { e.preventDefault(); showSection(item.id); };
+    nav.appendChild(a);
+  });
+
+  function showSection(id) {
+    document.querySelectorAll(".section").forEach(s => s.classList.add("hidden"));
+    document.getElementById("sec-" + id).classList.remove("hidden");
+    document.querySelectorAll(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.target === id));
+    window.scrollTo(0, 0);
+  }
+
+  function goApp() {
+    document.getElementById("view-login").classList.remove("active");
+    document.getElementById("view-app").classList.add("active");
+  }
+  function goLogin() {
+    document.getElementById("view-app").classList.remove("active");
+    document.getElementById("view-login").classList.add("active");
+  }
+  function openModal(id) {
+    const m = document.getElementById(id);
+    m.classList.remove("hidden");
+    m.classList.add("flex");
+  }
+  function closeModal(id) {
+    const m = document.getElementById(id);
+    m.classList.add("hidden");
+    m.classList.remove("flex");
+  }
+  function addUser() {
+    const name = document.getElementById("new-user-name").value || "Nouvel utilisateur";
+    const email = document.getElementById("new-user-email").value || "email@agence.sn";
+    const role = document.getElementById("new-user-role").value;
+    const initials = name.split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase();
+    const isOwner = role === "Gestionnaire principal";
+    const row = document.createElement("div");
+    row.className = "flex items-center justify-between px-4 py-3.5";
+    row.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-8 rounded-full ${isOwner ? 'bg-brand-100 text-brand-700' : 'bg-ink-100 text-ink-600'} flex items-center justify-center text-xs font-bold">${initials}</div>
+        <div><p class="text-sm font-medium">${name}</p><p class="text-xs text-ink-400">${email}</p></div>
+      </div>
+      <span class="text-xs px-2.5 py-1 rounded-full ${isOwner ? 'bg-brand-50 text-brand-700' : 'bg-ink-100 text-ink-600'} font-medium">${role}</span>`;
+    document.getElementById("user-list").appendChild(row);
+    closeModal("modal-user");
+  }
+</script>
+</body>
+</html>
