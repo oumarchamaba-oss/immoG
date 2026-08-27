@@ -1122,7 +1122,8 @@ function quickRelance(tenantId){
   const overdue = t.schedule.find(m=>scheduleStatus(m)!=='paid');
   const monthLabel = overdue ? `${monthNames[overdue.month]} ${overdue.year}` : '';
   const text = `Bonjour ${t.firstName}, nous vous rappelons que votre loyer de ${monthLabel} d'un montant de ${fcfa(balance)} reste à régler. Merci de nous contacter afin de régulariser votre situation.\n${state.agency.name}`;
-  state.messages.push({tenantId:t.id, tenantName:`${t.firstName} ${t.lastName}`, channel:'WhatsApp', text, date:new Date().toLocaleDateString('fr-FR')});
+  const now = new Date();
+  state.messages.push({tenantId:t.id, tenantName:`${t.firstName} ${t.lastName}`, channel:'WhatsApp', text, date:now.toLocaleDateString('fr-FR'), month:now.getMonth(), year:now.getFullYear()});
   logActivity('Relance envoyée', `WhatsApp · ${t.firstName} ${t.lastName}`);
   toast('Relance préparée avec succès', 'success');
   renderAll();
@@ -1132,6 +1133,7 @@ function openTenantDetail(id){
   const t = state.tenants.find(x=>x.id===id);
   window.__tenantDetailYear = t && t.schedule.length ? t.schedule[0].year : new Date().getFullYear();
   window.__selectedMonths = new Set();
+  window.__msgMonthFilter = 'all';
   show('locataire-detail');
 }
 function setTenantDetailYear(y){ window.__tenantDetailYear = Number(y); window.__selectedMonths = new Set(); renderTenantDetail(); }
@@ -1232,8 +1234,11 @@ function renderTenantDetail(){
           <div id="tenantPayHistory" class="space-y-2 text-sm"></div>
         </div>
         <div class="card p-5">
-          <h2 class="font-bold mb-4">Rappels envoyés</h2>
-          <div id="tenantMsgHistory" class="space-y-2 text-sm"></div>
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+            <h2 class="font-bold">Rappels envoyés</h2>
+            <select id="tenantMsgMonthFilter" class="input max-w-[170px]" onchange="onTenantMsgFilterChange()"></select>
+          </div>
+          <div id="tenantMsgHistory" class="space-y-4 text-sm"></div>
         </div>
       </div>
       <div class="space-y-5">
@@ -1271,12 +1276,61 @@ function renderTenantDetail(){
     </div>`;
   }).join('') : `<p class="text-ink-400">Aucun paiement enregistré pour l'instant.</p>`;
   const msgs = state.messages.filter(m=>m.tenantId===t.id);
+  renderTenantMessages(msgs);
+}
+function parseFrDate(dateStr){
+  if(!dateStr) return null;
+  const [d,m,y] = dateStr.split('/').map(Number);
+  if(!d||!m||!y) return null;
+  return { day:d, month:m-1, year:y };
+}
+function onTenantMsgFilterChange(){
+  window.__msgMonthFilter = document.getElementById('tenantMsgMonthFilter').value;
+  const t = state.tenants.find(x=>x.id===window.__currentTenant);
+  renderTenantMessages(state.messages.filter(m=>m.tenantId===t.id));
+}
+function renderTenantMessages(msgs){
+  const sel = document.getElementById('tenantMsgMonthFilter');
+  const monthsPresent = [];
+  msgs.forEach(m=>{
+    const dt = parseFrDate(m.date);
+    if(!dt) return;
+    const key = dt.month+'-'+dt.year;
+    if(!monthsPresent.some(x=>x.key===key)) monthsPresent.push({key, month:dt.month, year:dt.year});
+  });
+  monthsPresent.sort((a,b)=> b.year-a.year || b.month-a.month);
+  const prevValue = window.__msgMonthFilter || 'all';
+  sel.innerHTML = `<option value="all">Tous les mois</option>` + monthsPresent.map(x=>`<option value="${x.key}">${monthNames[x.month]} ${x.year}</option>`).join('');
+  sel.value = [...sel.options].some(o=>o.value===prevValue) ? prevValue : 'all';
+  window.__msgMonthFilter = sel.value;
+
+  const filtered = sel.value==='all' ? msgs : msgs.filter(m=>{ const dt=parseFrDate(m.date); return dt && (dt.month+'-'+dt.year)===sel.value; });
   const msgEl = document.getElementById('tenantMsgHistory');
-  msgEl.innerHTML = msgs.length ? [...msgs].reverse().map(m=>`
-    <div class="rounded-xl bg-ink-50 p-3">
-      <div class="flex items-center justify-between text-xs text-ink-500"><span>${m.channel}</span><span>${m.date||''}</span></div>
-      <p class="mt-1">${m.text}</p>
-    </div>`).join('') : `<p class="text-ink-400">Aucun rappel envoyé pour l'instant.</p>`;
+  if(filtered.length===0){
+    msgEl.innerHTML = `<p class="text-ink-400">${msgs.length===0?"Aucun rappel envoyé pour l'instant.":"Aucun rappel envoyé sur ce mois."}</p>`;
+    return;
+  }
+  if(sel.value!=='all'){
+    msgEl.innerHTML = [...filtered].reverse().map(m=>`
+      <div class="rounded-xl bg-ink-50 p-3">
+        <div class="flex items-center justify-between text-xs text-ink-500"><span>${m.channel}</span><span>${m.date||''}</span></div>
+        <p class="mt-1">${m.text}</p>
+      </div>`).join('');
+    return;
+  }
+  msgEl.innerHTML = monthsPresent.map(g=>{
+    const items = filtered.filter(m=>{ const dt=parseFrDate(m.date); return dt && dt.month===g.month && dt.year===g.year; });
+    return `<div>
+      <p class="text-xs font-bold uppercase tracking-wide text-ink-400 mb-2">${monthNames[g.month]} ${g.year} · ${items.length} relance${items.length>1?'s':''}</p>
+      <div class="space-y-2">
+        ${[...items].reverse().map(m=>`
+          <div class="rounded-xl bg-ink-50 p-3">
+            <div class="flex items-center justify-between text-xs text-ink-500"><span>${m.channel}</span><span>${m.date||''}</span></div>
+            <p class="mt-1">${m.text}</p>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 function recordTenantPayment(tenantId){
   const t = state.tenants.find(x=>x.id===tenantId);
