@@ -1,288 +1,1655 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ImmoG — Démo améliorée</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ImmoG — Gestion immobilière</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
   theme: {
     extend: {
       colors: {
-        brand: {50:"#eff6ff",100:"#dbeafe",200:"#bfdbfe",500:"#3b82f6",600:"#2563eb",700:"#1d4ed8",800:"#1e40af",900:"#1e3a8a"},
+        brand: {50:"#eff6ff",100:"#dbeafe",200:"#bfdbfe",300:"#93c5fd",400:"#60a5fa",500:"#3b82f6",600:"#2563eb",700:"#1d4ed8",800:"#1e40af",900:"#1e3a8a"},
+        sky: {50:"#f0f9ff",100:"#e0f2fe",200:"#bae6fd",500:"#0ea5e9"},
         ink: {50:"#f8fafc",100:"#f1f5f9",200:"#e2e8f0",300:"#cbd5e1",400:"#94a3b8",500:"#64748b",600:"#475569",700:"#334155",800:"#1e293b",900:"#0f172a"}
       },
-      fontFamily:{sans:["Inter","ui-sans-serif","system-ui"]}
+      fontFamily: { sans: ["Inter","ui-sans-serif","system-ui"] },
+      boxShadow: { card: "0 1px 2px rgba(15,23,42,.06)", pop: "0 12px 32px -8px rgba(15,23,42,.25)" }
     }
   }
 }
 </script>
 <style>
-body{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
-.view{display:none}.view.active{display:block}
-.section{display:none}.section.active{display:block}
-.nav-item.active{background:#eff6ff;color:#1d4ed8;font-weight:700}
-.nav-item.active svg{stroke:#1d4ed8}
-.card{border:1px solid #e2e8f0;background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-.input{width:100%;border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:.65rem .8rem;font-size:.875rem;outline:none;transition:box-shadow .15s,border-color .15s}
-.input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px #dbeafe}
-.btn{border-radius:10px;padding:.65rem .9rem;font-size:.875rem;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;transition:background-color .15s,border-color .15s,opacity .15s}
-.badge{font-size:.72rem;font-weight:700;padding:.3rem .6rem;border-radius:999px;letter-spacing:.01em}
-table thead th{font-weight:600;letter-spacing:.02em;text-transform:uppercase;font-size:.68rem}
-.nav-item{transition:background-color .15s,color .15s}
-button{cursor:pointer}
-::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
-@media(max-width:900px){#sidebar{transform:translateX(-100%);position:fixed;z-index:60;height:100vh;transition:.2s}#sidebar.open{transform:translateX(0)}#overlay.open{display:block}#main{padding:1rem}.desktop-only{display:none}}
+  *{box-sizing:border-box}
+  body{font-family:'Inter',ui-sans-serif,system-ui,sans-serif}
+  .view{display:none}.view.active{display:block}
+  .section{display:none}.section.active{display:block;animation:fade .15s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+  .nav-item{transition:background-color .15s,color .15s}
+  .nav-item.active{background:#eff6ff;color:#1d4ed8;font-weight:600}
+  .nav-item.active svg{stroke:#1d4ed8}
+  .card{border:1px solid #e2e8f0;background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+  .input{width:100%;border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:.6rem .75rem;font-size:.875rem;outline:none;transition:box-shadow .15s,border-color .15s;color:#1e293b}
+  .input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px #dbeafe}
+  .input:disabled{background:#f8fafc;color:#94a3b8}
+  .label{display:block;font-size:.8rem;font-weight:600;color:#334155;margin-bottom:.375rem}
+  .btn{border-radius:10px;padding:.6rem .95rem;font-size:.85rem;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;white-space:nowrap;transition:.15s;cursor:pointer;border:1px solid transparent}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary{background:#2563eb;color:#fff}.btn-primary:hover:not(:disabled){background:#1d4ed8}
+  .btn-secondary{background:#fff;color:#334155;border-color:#e2e8f0}.btn-secondary:hover:not(:disabled){border-color:#94a3b8}
+  .btn-danger{background:#fff;color:#dc2626;border-color:#fecaca}.btn-danger:hover:not(:disabled){background:#fef2f2}
+  .btn-ghost{color:#64748b}.btn-ghost:hover:not(:disabled){background:#f1f5f9}
+  .btn-sm{padding:.4rem .7rem;font-size:.78rem;border-radius:8px}
+  .badge{font-size:.7rem;font-weight:700;padding:.28rem .6rem;border-radius:999px;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
+  .icon-btn{height:2.1rem;width:2.1rem;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;color:#64748b;transition:.15s}
+  .icon-btn:hover{background:#f1f5f9;color:#1e293b}
+  table{border-collapse:collapse}
+  thead th{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;color:#94a3b8;text-align:left;padding:.75rem 1rem;background:#f8fafc}
+  tbody td{padding:.85rem 1rem;font-size:.875rem;border-top:1px solid #f1f5f9}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.5rem;color:#64748b}
+  @media(max-width:1024px){
+    #sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .2s;z-index:60}
+    #sidebar.open{transform:translateX(0)}
+    #overlay.open{display:block}
+    .desktop-only{display:none}
+  }
+  @media(max-width:640px){
+    table.responsive-stack thead{display:none}
+    table.responsive-stack, table.responsive-stack tbody, table.responsive-stack tr, table.responsive-stack td{display:block;width:100%}
+    table.responsive-stack{min-width:0}
+    table.responsive-stack tr{border:1px solid #e2e8f0;border-radius:12px;margin-bottom:.75rem;padding:.25rem 0;background:#fff}
+    table.responsive-stack td{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:.55rem .9rem;border-top:1px solid #f1f5f9;text-align:right}
+    table.responsive-stack tr td:first-child{border-top:none}
+    table.responsive-stack td::before{content:attr(data-label);font-weight:600;color:#64748b;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;text-align:left;flex-shrink:0}
+  }
+  @media print{ body *{visibility:hidden} #printArea, #printArea *{visibility:visible} #printArea{position:absolute;top:0;left:0;width:100%} }
 </style>
 </head>
 <body class="bg-ink-50 text-ink-800">
 
-<!-- LOGIN -->
-<div id="login" class="view active min-h-screen">
+<!-- ============ LOGIN ============ -->
+<div id="view-login" class="view active min-h-screen">
   <div class="min-h-screen grid lg:grid-cols-2">
     <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 text-white p-12">
       <div class="flex items-center gap-3 font-bold text-xl">
-        <div class="h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
-        </div>ImmoG
+        <div class="h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center" id="brandMarkLogin"></div>
+        <span>ImmoG</span>
       </div>
-      <div class="max-w-lg">
-        <p class="text-sm text-brand-200 font-semibold mb-3">GESTION IMMOBILIÈRE</p>
+      <div class="max-w-md">
+        <p class="text-sm text-brand-200 font-semibold tracking-wide mb-3">GESTION IMMOBILIÈRE</p>
         <h1 class="text-4xl font-bold leading-tight">Tout votre portefeuille immobilier, au même endroit.</h1>
-        <p class="mt-5 text-brand-100 leading-7">Biens, ventes, locations, locataires, loyers, paiements, reçus et vitrine publique.</p>
+        <p class="mt-5 text-brand-100 leading-7">Biens, ventes, locations, locataires, loyers, paiements, reçus et vitrine publique — gérés simplement, depuis un seul tableau de bord.</p>
       </div>
-      <p class="text-xs text-brand-200">Démo interactive · 2026</p>
+      <p class="text-xs text-brand-200">Démo interactive · données simulées localement</p>
     </div>
     <div class="flex items-center justify-center p-6">
       <div class="w-full max-w-md">
-        <div class="lg:hidden flex items-center gap-2 text-brand-700 font-bold text-xl mb-10"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg> ImmoG</div>
-        <h2 class="text-3xl font-bold">Connexion</h2>
-        <p class="text-sm text-ink-500 mt-2">Accédez au dashboard de votre agence.</p>
-        <div class="card p-6 mt-7">
-          <label class="text-sm font-semibold">Adresse email</label>
-          <input class="input mt-2" value="oumar@terangaimmo.sn">
-          <label class="text-sm font-semibold block mt-5">Mot de passe</label>
-          <input class="input mt-2" type="password" value="password">
-          <button class="btn bg-brand-600 hover:bg-brand-700 text-white w-full mt-6" onclick="enterApp()">Se connecter</button>
-          <p class="text-xs text-ink-400 text-center mt-4">Démo : les données sont simulées localement.</p>
+        <div class="lg:hidden flex items-center gap-2 text-brand-700 font-bold text-xl mb-10">
+          <div class="h-9 w-9 rounded-lg bg-brand-600 text-white flex items-center justify-center" id="brandMarkLoginMobile"></div>
+          ImmoG
+        </div>
+        <h2 class="text-2xl font-bold">Connexion</h2>
+        <p class="text-sm text-ink-500 mt-1.5">Accédez au tableau de bord de votre agence.</p>
+        <div class="card p-6 mt-6">
+          <label class="label">Adresse email</label>
+          <input id="loginEmail" class="input" value="oumar@terangaimmo.sn">
+          <label class="label mt-4">Mot de passe</label>
+          <input id="loginPassword" class="input" type="password" value="••••••••">
+          <p id="loginError" class="text-xs text-red-600 mt-2 hidden">Merci de renseigner votre email et votre mot de passe.</p>
+          <button class="btn btn-primary w-full mt-5" onclick="doLogin()">Se connecter</button>
+          <p class="text-xs text-ink-400 text-center mt-4">Démo — n'importe quel email/mot de passe fonctionne.</p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- APP -->
-<div id="app" class="view min-h-screen">
+<!-- ============ APP ============ -->
+<div id="view-app" class="view min-h-screen">
   <div id="overlay" class="hidden fixed inset-0 bg-black/30 z-50" onclick="toggleSidebar()"></div>
   <div class="flex min-h-screen">
-    <aside id="sidebar" class="w-64 shrink-0 border-r border-ink-200 bg-white flex flex-col">
+
+    <aside id="sidebar" class="w-64 shrink-0 border-r border-ink-200 bg-white flex flex-col h-screen lg:sticky lg:top-0">
       <div class="p-5 border-b border-ink-200 flex items-center gap-3">
-        <div class="h-10 w-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold">IG</div>
-        <div><div class="font-bold text-brand-700">ImmoG</div><div class="text-xs text-ink-400">Teranga Immobilier</div></div>
+        <div class="h-10 w-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold shrink-0" id="brandMarkSidebar"></div>
+        <div class="min-w-0">
+          <p class="font-bold text-brand-700 leading-none">ImmoG</p>
+          <p class="text-xs text-ink-400 mt-1 truncate" id="sidebarAgencyName">Teranga Immobilier</p>
+        </div>
       </div>
-      <nav id="nav" class="p-3 space-y-1 flex-1"></nav>
-      <div class="p-4 border-t border-ink-200 flex items-center gap-3">
-        <div class="h-9 w-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">OB</div>
-        <div class="min-w-0 flex-1"><div class="text-sm font-semibold truncate">Oumar Ba</div><div class="text-xs text-ink-400">Gestionnaire principal</div></div>
-        <button class="text-ink-400 hover:text-red-500" onclick="logout()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+      <nav id="nav" class="p-3 space-y-1 flex-1 overflow-y-auto"></nav>
+      <div class="p-3.5 border-t border-ink-200 flex items-center gap-2.5">
+        <button class="h-9 w-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0" id="userAvatarBtn" onclick="toggleRoleView()" title="Changer de rôle (démo)">OB</button>
+        <button class="min-w-0 flex-1 text-left" onclick="toggleRoleView()" title="Changer de rôle (démo)">
+          <p class="text-sm font-semibold truncate" id="sidebarUserName">Oumar Ba</p>
+          <p class="text-xs text-ink-400 truncate" id="sidebarUserRole">Gestionnaire principal</p>
+        </button>
+        <button class="icon-btn" title="Déconnexion" onclick="doLogout()"></button>
       </div>
     </aside>
 
-    <main id="main" class="flex-1 min-w-0 p-5 lg:p-8 max-w-[1500px]">
-      <header class="flex items-center justify-between mb-7">
-        <div class="flex items-center gap-3">
-          <button class="lg:hidden btn bg-white border border-ink-200" onclick="toggleSidebar()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-          <div><p class="text-xs text-ink-400">Agence</p><p class="font-bold">Teranga Immobilier</p></div>
+    <main id="main" class="flex-1 min-w-0">
+      <header class="sticky top-0 z-30 bg-ink-50/90 backdrop-blur border-b border-ink-200 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <button class="lg:hidden icon-btn bg-white border border-ink-200" onclick="toggleSidebar()"></button>
+          <div class="min-w-0">
+            <p class="text-xs text-ink-400 leading-none">Agence</p>
+            <p class="font-bold truncate" id="topbarAgencyName">Teranga Immobilier</p>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <button class="btn bg-white border border-ink-200" onclick="show('vitrine')">Voir la page publique<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-left:2px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg></button>
-          <button class="btn bg-brand-600 text-white" onclick="openModal('propertyModal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M12 5v14M5 12h14"/></svg>Nouveau bien</button>
+        <div class="flex items-center gap-2 shrink-0">
+          <button class="btn btn-secondary btn-sm desktop-only" onclick="openPublicSite()"></button>
+          <button class="btn btn-primary btn-sm" onclick="openPropertyModal()"></button>
         </div>
       </header>
 
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="section active">
-        <div class="mb-6"><p class="text-sm text-ink-500">Bonjour, Oumar</p><h1 class="text-3xl font-bold mt-1">Tableau de bord</h1></div>
-        <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <div class="card p-5"><p class="text-xs text-ink-500">Biens disponibles</p><p class="text-3xl font-bold mt-2">2</p><p class="text-xs text-emerald-600 mt-2">1 vente · 1 location</p></div>
-          <div class="card p-5"><p class="text-xs text-ink-500">Biens loués</p><p class="text-3xl font-bold mt-2">1</p><p class="text-xs text-ink-500 mt-2">250 000 FCFA / mois</p></div>
-          <div class="card p-5"><p class="text-xs text-ink-500">Loyers à recevoir</p><p class="text-3xl font-bold mt-2">400 000</p><p class="text-xs text-red-600 mt-2">FCFA · 2 échéances</p></div>
-          <div class="card p-5"><p class="text-xs text-ink-500">Encaissé ce mois</p><p class="text-3xl font-bold mt-2">350 000</p><p class="text-xs text-brand-600 mt-2">FCFA · 2 paiements</p></div>
-        </div>
+      <div class="p-4 lg:p-8 max-w-[1400px]">
 
-        <div class="grid xl:grid-cols-3 gap-5 mt-5">
-          <div class="card xl:col-span-2 p-5">
-            <div class="flex items-center justify-between"><div><h2 class="font-bold text-lg">Situation locative</h2><p class="text-sm text-ink-500">Suivi des échéances en cours</p></div><button class="text-sm text-brand-600 font-semibold" onclick="show('locataires')">Voir les locataires</button></div>
-            <div class="grid sm:grid-cols-3 gap-3 mt-5">
-              <div class="rounded-xl bg-emerald-50 p-4"><p class="text-xs text-emerald-700">Payé</p><p class="text-2xl font-bold text-emerald-800">1</p></div>
-              <div class="rounded-xl bg-amber-50 p-4"><p class="text-xs text-amber-700">Partiel</p><p class="text-2xl font-bold text-amber-800">1</p></div>
-              <div class="rounded-xl bg-red-50 p-4"><p class="text-xs text-red-700">Impayé</p><p class="text-2xl font-bold text-red-800">1</p></div>
+        <!-- DASHBOARD -->
+        <section id="sec-dashboard" class="section active">
+          <div class="mb-5"><p class="text-sm text-ink-500" id="dashGreeting">Bonjour, Oumar</p><h1 class="text-2xl lg:text-3xl font-bold mt-0.5">Tableau de bord</h1></div>
+
+          <div class="flex flex-wrap gap-2 mb-6">
+            <button class="btn btn-secondary btn-sm" onclick="openPropertyModal()" id="qaAddProperty"></button>
+            <button class="btn btn-secondary btn-sm" onclick="openTenantModal()" id="qaAddTenant"></button>
+            <button class="btn btn-secondary btn-sm" onclick="openTenantPicker()" id="qaAddPayment"></button>
+            <button class="btn btn-secondary btn-sm" onclick="goToImpayes()" id="qaImpayes"></button>
+            <button class="btn btn-secondary btn-sm" onclick="openUserModal()" id="qaAddUser"></button>
+          </div>
+
+          <p class="text-xs font-bold uppercase tracking-widest text-ink-400 mb-2">Portefeuille</p>
+          <div id="dashPortfolioStats" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+
+          <p class="text-xs font-bold uppercase tracking-widest text-ink-400 mb-2 mt-6">Finances</p>
+          <div id="dashStats" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+
+          <div class="grid xl:grid-cols-3 gap-5 mt-5">
+            <div class="card xl:col-span-2 p-5">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <div><h2 class="font-bold text-lg">Locataires</h2><p class="text-sm text-ink-500">Situation du mois en cours</p></div>
+                <button class="text-sm text-brand-600 font-semibold" onclick="show('locataires')">Voir les locataires →</button>
+              </div>
+              <div id="dashRentSummary" class="grid sm:grid-cols-3 gap-3 mt-5"></div>
+              <div id="dashOverdue" class="mt-5 border-t border-ink-100 pt-4 space-y-3"></div>
             </div>
-            <div class="mt-5 border-t border-ink-100 pt-4 space-y-3">
-              <div class="flex items-center justify-between text-sm"><span>Awa Diop · Février 2026</span><span class="font-semibold text-amber-700">150 000 FCFA restant</span></div>
-              <div class="flex items-center justify-between text-sm"><span>Awa Diop · Mars 2026</span><span class="font-semibold text-red-600">250 000 FCFA impayé</span></div>
+            <div class="card p-5">
+              <h2 class="font-bold text-lg">Activité récente</h2>
+              <div id="dashActivity" class="mt-4 space-y-4 text-sm"></div>
             </div>
           </div>
-          <div class="card p-5">
-            <h2 class="font-bold text-lg">Activité récente</h2>
-            <div class="mt-5 space-y-5 text-sm">
-              <div><p class="font-semibold">Paiement enregistré</p><p class="text-ink-500">Awa Diop · 100 000 FCFA</p><p class="text-xs text-ink-400 mt-1">Aujourd'hui</p></div>
-              <div><p class="font-semibold">Bien ajouté</p><p class="text-ink-500">Villa 4 chambres · Ngor</p><p class="text-xs text-ink-400 mt-1">Hier</p></div>
-              <div><p class="font-semibold">Reçu généré</p><p class="text-ink-500">REC-2026-0002</p><p class="text-xs text-ink-400 mt-1">Hier</p></div>
+        </section>
+
+        <!-- BIENS -->
+        <section id="sec-biens" class="section">
+          <div class="flex flex-wrap gap-3 items-end justify-between mb-5">
+            <div><h1 class="text-2xl lg:text-3xl font-bold">Mes biens</h1><p class="text-sm text-ink-500 mt-1">Gérez votre portefeuille, son statut et sa visibilité publique.</p></div>
+            <button class="btn btn-primary" onclick="openPropertyModal()"></button>
+          </div>
+          <div class="card p-3.5 mb-5 flex flex-wrap gap-2.5 items-center">
+            <div class="relative flex-1 min-w-[180px]">
+              <input id="propSearch" class="input pl-9" placeholder="Rechercher un bien..." oninput="renderProperties()">
+              <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400" id="propSearchIcon"></div>
+            </div>
+            <select id="propFilterStatus" class="input max-w-[170px]" onchange="renderProperties()">
+              <option value="all">Tous les statuts</option><option value="available">Disponible</option><option value="reserved">Réservé</option><option value="rented">Loué</option><option value="sold">Vendu</option>
+            </select>
+            <select id="propFilterType" class="input max-w-[170px]" onchange="renderProperties()">
+              <option value="all">Toutes transactions</option><option value="Vente">Vente</option><option value="Location">Location</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="resetPropertyFilters()">Réinitialiser</button>
+          </div>
+          <div id="propertyGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- BIEN — FICHE DÉTAIL -->
+        <section id="sec-bien-detail" class="section">
+          <button class="text-sm text-brand-600 font-semibold flex items-center gap-1.5 mb-4" onclick="show('biens')"><span id="backIcon2"></span>Tous les biens</button>
+          <div id="propertyDetail"></div>
+        </section>
+
+        <!-- LOCATAIRES (liste) -->
+        <section id="sec-locataires" class="section">
+          <div class="flex flex-wrap justify-between gap-3 mb-5">
+            <div><h1 class="text-2xl lg:text-3xl font-bold">Locataires</h1><p class="text-sm text-ink-500 mt-1">Qui est à jour, qui a des arriérés — et relancez en un clic.</p></div>
+            <button class="btn btn-primary" onclick="openTenantModal()"></button>
+          </div>
+          <div class="card p-3.5 mb-5 flex flex-wrap gap-2.5 items-center">
+            <div class="relative flex-1 min-w-[160px]">
+              <input id="tenantSearch" class="input pl-9" placeholder="Rechercher un locataire..." oninput="renderTenantList()">
+              <div class="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400" id="tenantSearchIcon"></div>
+            </div>
+            <select id="tenantFilterProperty" class="input max-w-[190px]" onchange="renderTenantList()"><option value="all">Tous les biens</option></select>
+            <select id="tenantFilterMonth" class="input max-w-[190px]" onchange="renderTenantList()"></select>
+            <select id="tenantFilterStatus" class="input max-w-[170px]" onchange="renderTenantList()">
+              <option value="all">Tous les statuts</option>
+              <option value="ok">À jour ce mois</option>
+              <option value="late">En retard ce mois</option>
+            </select>
+            <label class="flex items-center gap-2 text-sm text-ink-600 cursor-pointer">
+              <input id="tenantFilterArrears" type="checkbox" class="h-4 w-4 accent-brand-600" onchange="renderTenantList()">
+              Avec arriérés uniquement
+            </label>
+            <button class="btn btn-ghost btn-sm ml-auto" onclick="resetTenantFilters()">Réinitialiser</button>
+          </div>
+          <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm min-w-[820px] responsive-stack">
+                <thead><tr><th>Locataire</th><th>Bien</th><th>Dernier paiement</th><th>Prochaine échéance</th><th>Statut</th><th>Arriérés</th><th class="text-right pr-4">Action</th></tr></thead>
+                <tbody id="tenantTableBody"></tbody>
+              </table>
+            </div>
+            <div id="tenantEmpty" class="hidden"></div>
+          </div>
+        </section>
+
+        <!-- LOCATAIRE — DOSSIER DÉTAIL -->
+        <section id="sec-locataire-detail" class="section">
+          <button class="text-sm text-brand-600 font-semibold flex items-center gap-1.5 mb-4" onclick="show('locataires')"><span id="backIcon1"></span>Tous les locataires</button>
+          <div id="tenantDetail"></div>
+        </section>
+
+
+        <!-- PAIEMENTS -->
+        <section id="sec-paiements" class="section">
+          <div class="flex flex-wrap justify-between gap-3 mb-5">
+            <div><h1 class="text-2xl lg:text-3xl font-bold">Paiements</h1><p class="text-sm text-ink-500 mt-1">Historique de tous les paiements enregistrés.</p></div>
+            <button class="btn btn-primary" onclick="openTenantPicker()"></button>
+          </div>
+          <div id="paymentStats" class="grid sm:grid-cols-3 gap-4 mb-5"></div>
+          <div class="card overflow-hidden">
+            <div class="p-4 border-b border-ink-100 font-bold text-sm">Historique des paiements</div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm min-w-[600px] responsive-stack">
+                <thead><tr><th>Référence</th><th>Locataire</th><th>Mois couverts</th><th>Mode</th><th class="text-right pr-4">Montant</th></tr></thead>
+                <tbody id="paymentTableBody"></tbody>
+              </table>
+            </div>
+            <div id="paymentEmpty" class="hidden"></div>
+          </div>
+        </section>
+
+        <!-- UTILISATEURS -->
+        <section id="sec-utilisateurs" class="section">
+          <div class="flex flex-wrap justify-between gap-3 mb-5">
+            <div><h1 class="text-2xl lg:text-3xl font-bold">Utilisateurs</h1><p class="text-sm text-ink-500 mt-1">Deux niveaux d'accès selon le rôle de chacun.</p></div>
+            <button class="btn btn-primary" onclick="openUserModal()"></button>
+          </div>
+          <div class="card overflow-hidden" id="userList"></div>
+          <div class="card p-5 mt-5">
+            <h2 class="font-bold">Permissions par rôle</h2>
+            <div class="grid md:grid-cols-2 gap-4 mt-4 text-sm">
+              <div class="rounded-xl bg-brand-50 p-4"><b class="text-brand-800">Gestionnaire principal</b><p class="text-ink-600 mt-1">Accès complet : utilisateurs, paramètres, biens, locataires, paiements, comptabilité et page publique.</p></div>
+              <div class="rounded-xl bg-ink-50 p-4"><b>Gestionnaire secondaire</b><p class="text-ink-600 mt-1">Ajout de biens, suivi des locataires, enregistrement des paiements. Pas d'accès aux paramètres ni aux utilisateurs.</p></div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="card p-5 mt-5">
-          <div class="flex items-center justify-between"><div><h2 class="font-bold text-lg">Portefeuille immobilier</h2><p class="text-sm text-ink-500">Valeur indicative des biens à vendre</p></div><span class="text-2xl font-bold">180 M FCFA</span></div>
-          <div class="grid sm:grid-cols-3 gap-4 mt-5">
-            <div class="rounded-xl bg-ink-50 p-4"><p class="text-sm text-ink-500">Disponible à la vente</p><p class="font-bold mt-1">180 M FCFA</p></div>
-            <div class="rounded-xl bg-ink-50 p-4"><p class="text-sm text-ink-500">Ventes réalisées</p><p class="font-bold mt-1">0 FCFA</p></div>
-            <div class="rounded-xl bg-ink-50 p-4"><p class="text-sm text-ink-500">Cautions encaissées</p><p class="font-bold mt-1">500 000 FCFA</p></div>
+        <!-- PARAMETRES -->
+        <section id="sec-parametres" class="section">
+          <div class="mb-5"><h1 class="text-2xl lg:text-3xl font-bold">Paramètres</h1><p class="text-sm text-ink-500 mt-1">Personnalisez l'identité de votre agence.</p></div>
+          <div class="grid lg:grid-cols-3 gap-5">
+            <div class="card p-5 lg:col-span-2">
+              <h2 class="font-bold">Identité de l'agence</h2>
+              <div class="grid sm:grid-cols-2 gap-4 mt-5">
+                <div><label class="label">Nom</label><input id="setName" class="input"></div>
+                <div><label class="label">WhatsApp</label><input id="setWhatsapp" class="input"></div>
+                <div><label class="label">Téléphone</label><input id="setPhone" class="input"></div>
+                <div><label class="label">Email</label><input id="setEmail" class="input"></div>
+                <div class="sm:col-span-2"><label class="label">Adresse</label><input id="setAddress" class="input"></div>
+                <div class="sm:col-span-2"><label class="label">Description publique</label><textarea id="setDescription" class="input h-24"></textarea></div>
+              </div>
+              <div class="flex items-center gap-3 mt-5">
+                <button class="btn btn-primary" onclick="saveSettings()"></button>
+                <span id="settingsSaved" class="text-sm text-emerald-600 font-medium hidden">Enregistré ✓</span>
+              </div>
+            </div>
+            <div class="card p-5">
+              <h2 class="font-bold">Aperçu de marque</h2>
+              <div class="rounded-xl bg-brand-700 text-white p-5 mt-4">
+                <div class="h-10 w-10 rounded-lg bg-white/15 flex items-center justify-center font-bold" id="settingsPreviewInitials">TI</div>
+                <p class="font-bold mt-4" id="settingsPreviewName">Teranga Immobilier</p>
+                <p class="text-xs text-brand-100 mt-1" id="settingsPreviewDesc">Vente et location à Dakar</p>
+              </div>
+              <p class="text-xs text-ink-500 mt-4">Ces informations apparaissent sur la vitrine publique et sur les reçus.</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- BIENS -->
-      <section id="biens" class="section">
-        <div class="flex flex-wrap gap-3 items-end justify-between mb-6">
-          <div><h1 class="text-3xl font-bold">Mes biens</h1><p class="text-sm text-ink-500 mt-1">Gérez votre portefeuille, sa visibilité et son statut.</p></div>
-          <button class="btn bg-brand-600 text-white" onclick="openModal('propertyModal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M12 5v14M5 12h14"/></svg>Ajouter un bien</button>
-        </div>
-        <div class="card p-4 mb-5 flex flex-wrap gap-3">
-          <input class="input max-w-xs" placeholder="Rechercher un bien..." oninput="filterProperties(this.value)">
-          <select class="input max-w-[180px]" onchange="filterStatus(this.value)"><option value="all">Tous les statuts</option><option value="available">Disponible</option><option value="rented">Loué</option><option value="sold">Vendu</option></select>
-          <select class="input max-w-[180px]"><option>Toutes transactions</option><option>Vente</option><option>Location</option></select>
-          <label class="flex items-center gap-2 text-sm px-2"><input type="checkbox"> Visible publiquement</label>
-        </div>
-        <div id="propertyGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
-      </section>
-
-      <!-- LOCATAIRES -->
-      <section id="locataires" class="section">
-        <div class="flex flex-wrap justify-between gap-3 mb-6"><div><h1 class="text-3xl font-bold">Locataires</h1><p class="text-sm text-ink-500 mt-1">Dossiers, contrats, états des lieux et échéances.</p></div><button class="btn bg-brand-600 text-white" onclick="openModal('tenantModal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M12 5v14M5 12h14"/></svg>Nouveau locataire</button></div>
-        <div class="card overflow-hidden">
-          <div class="p-4 border-b border-ink-100 flex flex-wrap gap-3"><input class="input max-w-xs" placeholder="Rechercher un locataire..."><select class="input max-w-[180px]"><option>Tous les paiements</option><option>À jour</option><option>Partiel</option><option>Impayé</option></select><select class="input max-w-[160px]"><option>Tous les mois</option><option>Janvier</option><option>Février</option><option>Mars</option></select></div>
-          <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-ink-50 text-ink-500"><tr><th class="text-left p-4">Locataire</th><th class="text-left p-4">Bien</th><th class="text-left p-4">Mensualité</th><th class="text-left p-4">Situation</th><th class="text-right p-4">Action</th></tr></thead><tbody><tr class="border-t border-ink-100"><td class="p-4 font-semibold">Awa Diop</td><td class="p-4">Appartement 3 pièces · Mermoz</td><td class="p-4">250 000 FCFA</td><td class="p-4"><span class="badge bg-red-50 text-red-600">400 000 dû</span></td><td class="p-4 text-right"><button class="text-brand-600 font-semibold" onclick="openTenant()">Ouvrir le dossier</button></td></tr></tbody></table></div>
-        </div>
-      </section>
-
-      <!-- PAIEMENTS -->
-      <section id="paiements" class="section">
-        <div class="flex justify-between gap-3 mb-6"><div><h1 class="text-3xl font-bold">Paiements</h1><p class="text-sm text-ink-500 mt-1">Enregistrez les paiements et affectez-les aux mois concernés.</p></div><button class="btn bg-brand-600 text-white" onclick="openModal('paymentModal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M12 5v14M5 12h14"/></svg>Enregistrer un paiement</button></div>
-        <div class="grid sm:grid-cols-3 gap-4 mb-5"><div class="card p-5"><p class="text-xs text-ink-500">Encaissé</p><p class="text-2xl font-bold mt-1">350 000 FCFA</p></div><div class="card p-5"><p class="text-xs text-ink-500">Partiels</p><p class="text-2xl font-bold mt-1">1</p></div><div class="card p-5"><p class="text-xs text-ink-500">À recevoir</p><p class="text-2xl font-bold text-red-600 mt-1">400 000 FCFA</p></div></div>
-        <div class="card overflow-hidden"><div class="p-4 border-b border-ink-100 font-bold">Historique des paiements</div><table class="w-full text-sm"><thead class="bg-ink-50 text-ink-500"><tr><th class="text-left p-4">Référence</th><th class="text-left p-4">Locataire</th><th class="text-left p-4">Mois</th><th class="text-left p-4">Mode</th><th class="text-right p-4">Montant</th></tr></thead><tbody><tr class="border-t border-ink-100"><td class="p-4">PAY-0002</td><td class="p-4 font-semibold">Awa Diop</td><td class="p-4">Février 2026</td><td class="p-4"><span class="badge bg-ink-100 text-ink-600">Espèces</span></td><td class="p-4 text-right font-bold">100 000 FCFA</td></tr><tr class="border-t border-ink-100"><td class="p-4">PAY-0001</td><td class="p-4 font-semibold">Awa Diop</td><td class="p-4">Janvier 2026</td><td class="p-4"><span class="badge bg-brand-50 text-brand-700">Wave</span></td><td class="p-4 text-right font-bold">250 000 FCFA</td></tr></tbody></table></div>
-      </section>
-
-      <!-- COMPTABILITE -->
-      <section id="comptabilite" class="section">
-        <div class="mb-6"><h1 class="text-3xl font-bold">Comptabilité</h1><p class="text-sm text-ink-500 mt-1">Séparez valeur du portefeuille, ventes, loyers et créances.</p></div>
-        <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4"><div class="card p-5"><p class="text-xs text-ink-500">Portefeuille à vendre</p><p class="text-2xl font-bold mt-2">180 M</p><p class="text-xs text-ink-400">FCFA</p></div><div class="card p-5"><p class="text-xs text-ink-500">Ventes réalisées</p><p class="text-2xl font-bold mt-2">0</p><p class="text-xs text-ink-400">FCFA</p></div><div class="card p-5"><p class="text-xs text-ink-500">Loyers encaissés</p><p class="text-2xl font-bold text-brand-600 mt-2">350 000</p><p class="text-xs text-ink-400">FCFA</p></div><div class="card p-5"><p class="text-xs text-ink-500">Créances locatives</p><p class="text-2xl font-bold text-red-600 mt-2">400 000</p><p class="text-xs text-ink-400">FCFA</p></div></div>
-        <div class="card p-5 mt-5"><h2 class="font-bold">Mouvements financiers</h2><div class="mt-4 space-y-3 text-sm"><div class="flex justify-between border-b border-ink-100 pb-3"><span>Janvier · Awa Diop · Wave</span><b>+250 000 FCFA</b></div><div class="flex justify-between border-b border-ink-100 pb-3"><span>Février · Awa Diop · Espèces</span><b>+100 000 FCFA</b></div><div class="flex justify-between"><span>Caution · Appartement Mermoz</span><b>+500 000 FCFA</b></div></div></div>
-      </section>
-
-      <!-- RECUS -->
-      <section id="recus" class="section">
-        <div class="mb-6"><h1 class="text-3xl font-bold">Reçus</h1><p class="text-sm text-ink-500 mt-1">Générez des reçus professionnels pour chaque paiement.</p></div>
-        <div class="grid lg:grid-cols-3 gap-5"><div class="card lg:col-span-2 overflow-hidden"><table class="w-full text-sm"><thead class="bg-ink-50"><tr><th class="text-left p-4">N° reçu</th><th class="text-left p-4">Locataire</th><th class="text-left p-4">Mois</th><th class="text-right p-4">Montant</th><th></th></tr></thead><tbody><tr class="border-t border-ink-100"><td class="p-4">REC-2026-0002</td><td class="p-4 font-semibold">Awa Diop</td><td class="p-4">Février 2026</td><td class="p-4 text-right font-bold">100 000</td><td class="p-4"><button class="text-brand-600 font-semibold" onclick="openReceipt()">Voir</button></td></tr><tr class="border-t border-ink-100"><td class="p-4">REC-2026-0001</td><td class="p-4 font-semibold">Awa Diop</td><td class="p-4">Janvier 2026</td><td class="p-4 text-right font-bold">250 000</td><td class="p-4"><button class="text-brand-600 font-semibold" onclick="openReceipt()">Voir</button></td></tr></tbody></table></div><div class="card p-5"><div class="text-xs uppercase tracking-widest text-brand-600 font-bold">Aperçu du reçu</div><div class="mt-4 border border-ink-200 rounded-xl p-5"><div class="font-bold text-brand-700">Teranga Immobilier</div><div class="text-xs text-ink-500">Rue 12, Point E, Dakar · +221 77 000 00 00</div><div class="border-t border-dashed my-4"></div><div class="flex justify-between text-sm"><span>Locataire</span><b>Awa Diop</b></div><div class="flex justify-between text-sm mt-2"><span>Mois</span><b>Février 2026</b></div><div class="flex justify-between text-sm mt-2"><span>Montant payé</span><b>100 000 FCFA</b></div><button class="btn bg-ink-900 text-white w-full mt-5">Imprimer / PDF</button></div></div></div>
-      </section>
-
-      <!-- MESSAGES -->
-      <section id="messages" class="section">
-        <div class="mb-6"><h1 class="text-3xl font-bold">Messages</h1><p class="text-sm text-ink-500 mt-1">Préparez des rappels WhatsApp ou SMS pour vos locataires.</p></div>
-        <div class="grid lg:grid-cols-2 gap-5"><div class="card p-5"><h2 class="font-bold">Rappel de paiement</h2><div class="mt-4 grid sm:grid-cols-2 gap-3"><select class="input"><option>Tous les locataires en retard</option><option>Awa Diop</option></select><select class="input"><option>WhatsApp</option><option>SMS</option></select></div><input class="input mt-3" value="250 000 FCFA"><input class="input mt-3" value="https://pay.immoG.example/wave"><textarea class="input mt-3 h-32">Bonjour Awa, votre loyer du mois de Mars d'un montant de 250 000 FCFA est à régler. Vous pouvez payer ici : https://pay.immoG.example/wave. Merci.</textarea><div class="flex gap-2 mt-4"><button class="btn bg-brand-600 text-white" onclick="toast('Rappel envoyé (démo)')">Envoyer</button><button class="btn border border-ink-200" onclick="toast('Aperçu : message identique au champ ci-dessus')">Prévisualiser</button></div></div><div class="card p-5"><h2 class="font-bold">Envois récents</h2><div class="mt-4 space-y-3 text-sm"><div class="rounded-xl bg-ink-50 p-4"><b>WhatsApp · Awa Diop</b><p class="text-ink-500 mt-1">Rappel Février · envoyé</p></div><div class="rounded-xl bg-ink-50 p-4"><b>SMS · Awa Diop</b><p class="text-ink-500 mt-1">Rappel Janvier · envoyé</p></div></div></div></div>
-      </section>
-
-      <!-- VITRINE -->
-      <section id="vitrine" class="section">
-        <div class="flex flex-wrap justify-between gap-3 mb-6"><div><h1 class="text-3xl font-bold">Page publique</h1><p class="text-sm text-ink-500 mt-1">Prévisualisez la vitrine que vos prospects verront.</p></div><button class="btn bg-brand-600 text-white" onclick="openPublic()">Ouvrir la vitrine<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-left:2px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg></button></div>
-        <div class="card overflow-hidden">
-          <div class="relative bg-gradient-to-r from-brand-800 to-brand-600 text-white p-8 lg:p-12"><div class="absolute top-6 right-6 h-14 w-14 rounded-xl bg-white/15 flex items-center justify-center font-bold">TI</div><p class="text-xs uppercase tracking-widest text-brand-200">Agence immobilière</p><h2 class="text-3xl font-bold mt-2">Teranga Immobilier</h2><p class="text-brand-100 mt-2 max-w-xl">Vente et location de biens à Dakar et environs.</p><p class="text-sm mt-5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-1px;margin-right:2px"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg> Rue 12, Point E, Dakar · WhatsApp +221 77 000 00 00</p></div>
-          <div class="p-6"><div class="flex justify-between items-center"><h2 class="text-xl font-bold">Nos biens disponibles</h2><span class="text-sm text-ink-500">2 biens</span></div><div class="grid md:grid-cols-2 gap-5 mt-5"><div class="rounded-2xl border overflow-hidden"><div class="h-48 bg-gradient-to-br from-slate-200 to-brand-100"></div><div class="p-5"><span class="badge bg-brand-50 text-brand-700">Vente</span><h3 class="font-bold text-lg mt-3">Villa 4 chambres — Ngor</h3><p class="text-sm text-ink-500 mt-1">Ngor, Dakar</p><p class="font-bold text-brand-600 mt-4">145 000 000 FCFA</p><button class="btn border border-ink-200 w-full mt-4" onclick="openPublicProperty('Villa 4 chambres — Ngor')">Voir le bien</button></div></div><div class="rounded-2xl border overflow-hidden"><div class="h-48 bg-gradient-to-br from-slate-200 to-brand-100"></div><div class="p-5"><span class="badge bg-brand-50 text-brand-700">Vente</span><h3 class="font-bold text-lg mt-3">Terrain 400m² — Diamniadio</h3><p class="text-sm text-ink-500 mt-1">Zone B, Diamniadio</p><p class="font-bold text-brand-600 mt-4">35 000 000 FCFA</p><button class="btn border border-ink-200 w-full mt-4" onclick="openPublicProperty('Terrain 400m² — Diamniadio')">Voir le bien</button></div></div></div></div>
-        </div>
-      </section>
-
-      <!-- UTILISATEURS -->
-      <section id="utilisateurs" class="section">
-        <div class="flex justify-between gap-3 mb-6"><div><h1 class="text-3xl font-bold">Utilisateurs</h1><p class="text-sm text-ink-500 mt-1">Deux niveaux d'accès selon le rôle.</p></div><button class="btn bg-brand-600 text-white" onclick="openModal('userModal')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M12 5v14M5 12h14"/></svg>Inviter un gestionnaire</button></div>
-        <div id="userList" class="card overflow-hidden"><div class="p-5 border-b"><div class="flex items-center justify-between"><div><b>Oumar Ba</b><p class="text-xs text-ink-400">oumar@terangaimmo.sn</p></div><span class="badge bg-brand-50 text-brand-700">Gestionnaire principal</span></div></div><div class="p-5 border-t"><div class="flex items-center justify-between"><div><b>Awa Fall</b><p class="text-xs text-ink-400">awa@terangaimmo.sn</p></div><span class="badge bg-ink-100 text-ink-600">Gestionnaire secondaire</span></div></div></div>
-        <div class="card p-5 mt-5"><h2 class="font-bold">Permissions</h2><div class="grid md:grid-cols-2 gap-4 mt-4 text-sm"><div><b>Principal</b><p class="text-ink-500 mt-1">Accès complet, utilisateurs, paramètres, biens, locataires, paiements, comptabilité et page publique.</p></div><div><b>Secondaire</b><p class="text-ink-500 mt-1">Ajout de biens, consultation, suivi des locataires et enregistrement des paiements. Pas de modification des paramètres ni des permissions.</p></div></div></div>
-      </section>
-
-      <!-- PARAMETRES -->
-      <section id="parametres" class="section">
-        <div class="mb-6"><h1 class="text-3xl font-bold">Paramètres</h1><p class="text-sm text-ink-500 mt-1">Personnalisez l'identité de votre agence.</p></div>
-        <div class="grid lg:grid-cols-3 gap-5"><div class="card p-5 lg:col-span-2"><h2 class="font-bold">Identité de l'agence</h2><div class="grid sm:grid-cols-2 gap-4 mt-5"><div><label class="text-sm font-semibold">Nom</label><input class="input mt-2" value="Teranga Immobilier"></div><div><label class="text-sm font-semibold">Téléphone / WhatsApp</label><input class="input mt-2" value="+221 77 000 00 00"></div><div><label class="text-sm font-semibold">Email</label><input class="input mt-2" value="contact@terangaimmo.sn"></div><div><label class="text-sm font-semibold">Adresse</label><input class="input mt-2" value="Rue 12, Point E, Dakar"></div><div class="sm:col-span-2"><label class="text-sm font-semibold">Description</label><textarea class="input mt-2 h-24">Vente et location de biens à Dakar et environs.</textarea></div><div><label class="text-sm font-semibold">Couleur principale</label><input type="color" class="h-11 w-full mt-2 rounded-lg border" value="#2563eb"></div><div><label class="text-sm font-semibold">Logo</label><button class="btn border border-ink-200 w-full mt-2">Téléverser le logo</button></div><div class="sm:col-span-2"><label class="text-sm font-semibold">Bannière publique</label><button class="btn border border-ink-200 w-full mt-2">Téléverser une bannière</button></div></div><button class="btn bg-brand-600 text-white mt-5">Enregistrer les changements</button></div><div class="card p-5"><h2 class="font-bold">Aperçu de marque</h2><div class="rounded-xl bg-brand-700 text-white p-5 mt-4"><div class="h-10 w-10 rounded-lg bg-white/15 flex items-center justify-center font-bold">TI</div><p class="font-bold mt-4">Teranga Immobilier</p><p class="text-xs text-brand-100 mt-1">Vente et location à Dakar</p></div><p class="text-xs text-ink-500 mt-4">Les changements s'appliquent automatiquement aux pages publiques et aux reçus.</p></div></div>
-      </section>
+      </div>
     </main>
   </div>
 </div>
 
-<!-- PUBLIC DETAIL -->
-<div id="publicDetail" class="view min-h-screen bg-white">
-  <header class="border-b sticky top-0 bg-white/95 backdrop-blur z-20"><div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between"><button class="font-bold text-brand-700" onclick="openPublic()">ImmoG · Teranga Immobilier</button><button class="btn bg-brand-600 text-white" onclick="backApp()">Retour au dashboard</button></div></header>
-  <main class="max-w-6xl mx-auto p-5 lg:p-10">
-    <button class="text-sm text-brand-600 font-semibold" onclick="openPublic()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M15 18l-6-6 6-6"/></svg>Tous les biens</button>
-    <div class="grid lg:grid-cols-2 gap-8 mt-6"><div><div class="h-80 lg:h-[500px] rounded-3xl bg-gradient-to-br from-slate-200 via-brand-100 to-brand-200"></div><div class="grid grid-cols-4 gap-3 mt-3"><div class="h-20 rounded-xl bg-slate-200"></div><div class="h-20 rounded-xl bg-brand-100"></div><div class="h-20 rounded-xl bg-slate-200"></div><div class="h-20 rounded-xl bg-brand-100"></div></div></div><div><span id="publicBadge" class="badge bg-brand-50 text-brand-700">Vente</span><h1 id="publicTitle" class="text-3xl lg:text-4xl font-bold mt-4">Villa 4 chambres — Ngor</h1><p class="text-ink-500 mt-2"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-1px;margin-right:2px"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg> Ngor, Dakar</p><p id="publicPrice" class="text-2xl font-bold text-brand-600 mt-6">145 000 000 FCFA</p><div class="grid grid-cols-2 gap-3 mt-6"><div class="rounded-xl bg-ink-50 p-4"><p class="text-xs text-ink-500">Statut juridique</p><p class="font-semibold mt-1">Titre foncier</p></div><div class="rounded-xl bg-ink-50 p-4"><p class="text-xs text-ink-500">Disponibilité</p><p class="font-semibold mt-1">Disponible</p></div></div><h2 class="font-bold text-lg mt-8">Description</h2><p class="text-ink-600 leading-7 mt-2">Belle propriété dans un secteur recherché. Détails du bien, environnement, accès et conditions disponibles auprès de l'agence.</p><button class="btn bg-[#25D366] text-white w-full mt-8 text-base">Contacter l'agence sur WhatsApp</button><div class="mt-4 text-sm text-ink-500">Teranga Immobilier · Rue 12, Point E, Dakar</div></div></div>
-  </main>
+<!-- ============ VITRINE PUBLIQUE ============ -->
+<div id="view-public" class="view min-h-screen bg-white">
+  <header class="border-b border-ink-200 sticky top-0 bg-white/95 backdrop-blur z-20">
+    <div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between gap-3">
+      <button class="font-bold text-brand-700 flex items-center gap-2 min-w-0" onclick="openPublicSite()">
+        <span id="publicHeaderMark"></span><span class="truncate" id="publicHeaderName">ImmoG · Teranga Immobilier</span>
+      </button>
+      <button class="btn btn-secondary btn-sm shrink-0" onclick="backToApp()"></button>
+    </div>
+  </header>
+  <main id="publicMain" class="max-w-6xl mx-auto p-5 lg:p-10"></main>
 </div>
 
-<!-- MODALS -->
-<div id="propertyModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
-<div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center"><div><h2 class="text-xl font-bold">Ajouter un bien</h2><p class="text-sm text-ink-500">Créez une fiche complète et choisissez sa visibilité.</p></div><button onclick="closeModal('propertyModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
-<div class="grid sm:grid-cols-2 gap-4 mt-6"><div><label class="text-sm font-semibold">Type de bien</label><select id="pType" class="input mt-2"><option>Appartement</option><option>Maison</option><option>Terrain</option></select></div><div><label class="text-sm font-semibold">Transaction</label><select id="pTransaction" class="input mt-2" onchange="toggleSaleRent(this.value)"><option value="sale">Vente</option><option value="rent">Location</option></select></div><div class="sm:col-span-2"><label class="text-sm font-semibold">Titre</label><input id="pTitle" class="input mt-2" placeholder="Ex. Appartement 3 pièces — Mermoz"></div><div><label class="text-sm font-semibold">Ville</label><input id="pCity" class="input mt-2" placeholder="Dakar" value="Dakar"></div><div><label class="text-sm font-semibold">Quartier</label><input id="pNeighborhood" class="input mt-2" placeholder="Mermoz"></div><div class="sm:col-span-2"><label class="text-sm font-semibold">Adresse</label><input class="input mt-2" placeholder="Adresse complète"></div><div id="saleFields"><label class="text-sm font-semibold">Prix de vente</label><input id="pSalePrice" class="input mt-2" placeholder="145000000"></div><div id="legalField"><label class="text-sm font-semibold">Statut juridique</label><select class="input mt-2"><option>Titre foncier</option><option>Bail</option><option>Délibération</option></select></div><div id="rentFields" class="hidden"><label class="text-sm font-semibold">Mensualité</label><input id="pRent" class="input mt-2" placeholder="250000"></div><div id="depositField" class="hidden"><label class="text-sm font-semibold">Caution</label><input class="input mt-2" placeholder="500000"></div><div class="sm:col-span-2"><label class="text-sm font-semibold">Description</label><textarea class="input mt-2 h-24" placeholder="Description du bien..."></textarea></div><div class="sm:col-span-2"><label class="text-sm font-semibold">Photos</label><div class="border-2 border-dashed border-ink-200 rounded-xl p-6 text-center text-sm text-ink-500 mt-2">Déposer les photos ici ou cliquer pour sélectionner</div></div></div>
-<div class="flex items-center justify-between mt-6 p-4 bg-ink-50 rounded-xl"><div><b class="text-sm">Visible sur la page publique</b><p class="text-xs text-ink-500">Un bien vendu ou loué sera automatiquement retiré.</p></div><input type="checkbox" checked class="h-5 w-5"></div>
-<div class="flex justify-end gap-2 mt-6"><button class="btn border border-ink-200" onclick="closeModal('propertyModal')">Annuler</button><button class="btn bg-brand-600 text-white" onclick="saveProperty()">Enregistrer le bien</button></div></div></div>
+<!-- ============ MODALS ============ -->
 
-<div id="paymentModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-2xl w-full max-w-lg p-6"><div class="flex justify-between"><h2 class="text-xl font-bold">Enregistrer un paiement</h2><button onclick="closeModal('paymentModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="space-y-4 mt-5"><div><label class="text-sm font-semibold">Locataire</label><select class="input mt-2"><option>Awa Diop</option></select></div><div><label class="text-sm font-semibold">Montant payé</label><input class="input mt-2" value="100000"></div><div><label class="text-sm font-semibold">Mois</label><select class="input mt-2"><option>Février 2026</option><option>Mars 2026</option></select></div><div><label class="text-sm font-semibold">Mode de paiement</label><select class="input mt-2"><option>Espèces</option><option>Wave</option><option>Orange Money</option><option>Autre</option></select></div><div class="rounded-xl bg-amber-50 p-4 text-sm"><b>Paiement partiel</b><p class="text-amber-800 mt-1">Après ce paiement, il restera 150 000 FCFA sur l'échéance de février.</p></div></div><div class="flex justify-end gap-2 mt-6"><button class="btn border border-ink-200" onclick="closeModal('paymentModal')">Annuler</button><button class="btn bg-brand-600 text-white" onclick="closeModal('paymentModal');openReceipt()">Enregistrer et générer le reçu</button></div></div></div>
+<!-- Property modal (création ET modification) -->
+<div id="modal-property" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[92vh] overflow-y-auto shadow-pop">
+    <div class="flex justify-between items-start gap-4">
+      <div><h2 id="propertyModalTitle" class="text-xl font-bold">Ajouter un bien</h2><p id="propertyModalSub" class="text-sm text-ink-500 mt-0.5">Créez une fiche complète et choisissez sa visibilité.</p></div>
+      <button class="icon-btn shrink-0" onclick="closeModal('modal-property')" id="propModalClose"></button>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4 mt-6">
+      <div><label class="label">Type de bien</label>
+        <select id="pType" class="input"><option>Appartement</option><option>Maison</option><option>Villa</option><option>Terrain</option><option>Bureau / Local</option><option>Boutique</option><option>Autre</option></select>
+      </div>
+      <div><label class="label">Transaction</label>
+        <select id="pTransaction" class="input" onchange="toggleSaleRent(this.value)">
+          <option value="sale">Vente</option><option value="rent">Location</option>
+        </select>
+      </div>
+      <div class="sm:col-span-2"><label class="label">Titre du bien <span class="text-red-500">*</span></label>
+        <input id="pTitle" class="input" placeholder="Ex. Appartement 3 pièces — Mermoz">
+      </div>
+      <div><label class="label">Ville</label><input id="pCity" class="input" value="Dakar"></div>
+      <div><label class="label">Quartier</label><input id="pNeighborhood" class="input" placeholder="Mermoz"></div>
+      <div id="saleFields"><label class="label">Prix de vente (FCFA)</label><input id="pSalePrice" class="input" placeholder="145000000" inputmode="numeric"></div>
+      <div id="legalField"><label class="label">Statut juridique</label>
+        <select id="pLegal" class="input"><option>Titre foncier</option><option>Bail</option><option>Délibération</option><option>Autre</option></select>
+      </div>
+      <div id="rentFields" class="hidden"><label class="label">Mensualité (FCFA)</label><input id="pRent" class="input" placeholder="250000" inputmode="numeric"></div>
+      <div id="depositField" class="hidden"><label class="label">Caution (FCFA)</label><input id="pDeposit" class="input" placeholder="500000" inputmode="numeric"></div>
+      <div class="sm:col-span-2"><label class="label">Description</label><textarea id="pDescription" class="input h-24" placeholder="Description du bien..."></textarea></div>
+      <div class="sm:col-span-2">
+        <label class="label">Photos du bien</label>
+        <div id="newPropPhotosGrid" class="grid grid-cols-4 sm:grid-cols-5 gap-2 mb-2"></div>
+        <label class="btn btn-secondary w-full cursor-pointer">
+          <input type="file" accept="image/*" multiple class="hidden" id="newPropFileInput" onchange="onNewPropFileChange()">
+          <span id="newPropAddLabel"></span>
+        </label>
+      </div>
+    </div>
+    <div class="flex items-center justify-between mt-5 p-4 bg-ink-50 rounded-xl">
+      <div><b class="text-sm">Visible sur la page publique</b><p class="text-xs text-ink-500 mt-0.5">Un bien vendu ou loué sera automatiquement retiré.</p></div>
+      <input id="pVisible" type="checkbox" checked class="h-5 w-5 accent-brand-600">
+    </div>
+    <p id="propertyError" class="text-xs text-red-600 mt-3 hidden">Le titre du bien est obligatoire.</p>
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn btn-secondary" onclick="closeModal('modal-property')">Annuler</button>
+      <button class="btn btn-primary" id="propertySaveBtn" onclick="saveProperty()">Enregistrer le bien</button>
+    </div>
+  </div>
+</div>
+<div id="modal-tenant" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl w-full max-w-xl p-6 max-h-[92vh] overflow-y-auto shadow-pop">
+    <div class="flex justify-between items-start gap-4">
+      <div><h2 class="text-xl font-bold">Nouveau locataire</h2><p id="tenantModalSub" class="text-sm text-ink-500 mt-0.5">Créez le dossier et l'échéancier de loyer.</p></div>
+      <button class="icon-btn shrink-0" onclick="closeModal('modal-tenant')" id="tenantModalClose"></button>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4 mt-5">
+      <div><label class="label">Prénom <span class="text-red-500">*</span></label><input id="tFirst" class="input"></div>
+      <div><label class="label">Nom <span class="text-red-500">*</span></label><input id="tLast" class="input"></div>
+      <div><label class="label">WhatsApp</label><input id="tWhatsapp" class="input" placeholder="77 000 00 00"></div>
+      <div><label class="label">Email</label><input id="tEmail" class="input"></div>
+      <div class="sm:col-span-2"><label class="label">Adresse</label><input id="tAddress" class="input" placeholder="Adresse personnelle du locataire"></div>
+      <div class="sm:col-span-2"><label class="label">Bien loué <span class="text-red-500">*</span></label>
+        <select id="tProperty" class="input" onchange="fillTenantRentFromProperty()"></select>
+      </div>
+      <div><label class="label">Mensualité (FCFA)</label><input id="tRent" class="input" inputmode="numeric"></div>
+      <div><label class="label">Caution (FCFA)</label><input id="tDeposit" class="input" inputmode="numeric"></div>
+      <div><label class="label">Début du contrat</label><input id="tStart" type="date" class="input"></div>
+      <div><label class="label">Durée (mois)</label>
+        <select id="tDuration" class="input"><option value="3">3 mois</option><option value="6" selected>6 mois</option><option value="12">12 mois</option></select>
+      </div>
+      <div><label class="label">Jour habituel de paiement</label>
+        <select id="tPaymentDay" class="input"><option value="1">Le 1er du mois</option><option value="5">Le 5 du mois</option><option value="10">Le 10 du mois</option><option value="15">Le 15 du mois</option></select>
+      </div>
+      <div><label class="label">Conditions particulières</label><input id="tNotes" class="input" placeholder="Ex. animaux non autorisés"></div>
+    </div>
+    <p id="tenantError" class="text-xs text-red-600 mt-3 hidden">Merci de renseigner le prénom, le nom et le bien loué.</p>
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn btn-secondary" onclick="closeModal('modal-tenant')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveTenant()">Créer le dossier</button>
+    </div>
+  </div>
+</div>
 
-<div id="tenantModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-2xl w-full max-w-xl p-6"><h2 class="text-xl font-bold">Nouveau locataire</h2><div class="grid sm:grid-cols-2 gap-4 mt-5"><input class="input" placeholder="Prénom"><input class="input" placeholder="Nom"><input class="input" placeholder="WhatsApp"><input class="input" placeholder="Email"><input class="input sm:col-span-2" placeholder="Bien loué"><input class="input" placeholder="Mensualité"><input class="input" placeholder="Caution"></div><div class="flex justify-end gap-2 mt-6"><button class="btn border" onclick="closeModal('tenantModal')">Annuler</button><button class="btn bg-brand-600 text-white" onclick="closeModal('tenantModal');toast('Dossier locataire créé')">Créer le dossier</button></div></div></div>
+<!-- Tenant picker (for global "Enregistrer un paiement" entry point) -->
+<div id="modal-tenant-picker" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-pop">
+    <h2 class="text-lg font-bold">Choisir un locataire</h2>
+    <p class="text-sm text-ink-500 mt-1">Vous serez redirigé vers son dossier pour enregistrer le paiement.</p>
+    <select id="pickerTenant" class="input mt-4"></select>
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn btn-secondary" onclick="closeModal('modal-tenant-picker')">Annuler</button>
+      <button class="btn btn-primary" onclick="continueFromPicker()">Ouvrir le dossier</button>
+    </div>
+  </div>
+</div>
 
-<div id="userModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4"><div class="bg-white rounded-2xl w-full max-w-md p-6"><h2 class="text-xl font-bold">Inviter un gestionnaire</h2><div class="space-y-4 mt-5"><input id="uName" class="input" placeholder="Nom complet"><input id="uEmail" class="input" placeholder="Adresse email"><select id="uRole" class="input"><option>Gestionnaire secondaire</option><option>Gestionnaire principal</option></select></div><p class="text-xs text-ink-500 mt-4">L'utilisateur recevra une invitation et pourra définir son mot de passe.</p><div class="flex justify-end gap-2 mt-6"><button class="btn border" onclick="closeModal('userModal')">Annuler</button><button class="btn bg-brand-600 text-white" onclick="saveUser()">Envoyer l'invitation</button></div></div></div>
+<!-- User modal -->
+<div id="modal-user" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-pop">
+    <div class="flex justify-between items-start gap-4">
+      <h2 class="text-xl font-bold">Inviter un gestionnaire</h2>
+      <button class="icon-btn shrink-0" onclick="closeModal('modal-user')" id="userModalClose"></button>
+    </div>
+    <div class="space-y-4 mt-5">
+      <div><label class="label">Nom complet <span class="text-red-500">*</span></label><input id="uName" class="input"></div>
+      <div><label class="label">Adresse email <span class="text-red-500">*</span></label><input id="uEmail" class="input"></div>
+      <div><label class="label">Rôle</label>
+        <select id="uRole" class="input"><option>Gestionnaire secondaire</option><option>Gestionnaire principal</option></select>
+      </div>
+    </div>
+    <p id="userError" class="text-xs text-red-600 mt-3 hidden">Merci de renseigner le nom et l'email.</p>
+    <p class="text-xs text-ink-500 mt-3">L'utilisateur recevra une invitation et pourra définir son mot de passe.</p>
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn btn-secondary" onclick="closeModal('modal-user')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveUser()">Envoyer l'invitation</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt modal (printable) -->
+<div id="modal-receipt" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-pop">
+    <div class="flex justify-between items-start gap-4">
+      <h2 class="text-lg font-bold">Reçu de paiement</h2>
+      <button class="icon-btn shrink-0" onclick="closeModal('modal-receipt')" id="receiptModalClose"></button>
+    </div>
+    <div id="printArea"><div id="receiptModalBody" class="mt-4"></div></div>
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn btn-secondary" onclick="closeModal('modal-receipt')">Fermer</button>
+      <button class="btn btn-primary" onclick="window.print()" id="receiptPrintBtn"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Generic confirm modal -->
+<div id="modal-confirm" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-pop text-center">
+    <div class="h-12 w-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto" id="confirmIcon"></div>
+    <h2 id="confirmTitle" class="text-lg font-bold mt-4">Confirmer l'action</h2>
+    <p id="confirmBody" class="text-sm text-ink-500 mt-1.5"></p>
+    <div class="flex gap-2 mt-6">
+      <button class="btn btn-secondary flex-1" onclick="closeModal('modal-confirm')">Annuler</button>
+      <button class="btn btn-danger flex-1" id="confirmActionBtn" style="border-color:#dc2626;background:#dc2626;color:#fff">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastHost" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center gap-2 pointer-events-none"></div>
 
 <script>
-const navItems=[
-["dashboard","Tableau de bord",'<path d="M3 9l9-6 9 6M4 10v10h16V10"/>'],
-["biens","Biens",'<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>'],
-["locataires","Locataires",'<circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>'],
-["paiements","Paiements",'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/>'],
-["comptabilite","Comptabilité",'<path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>'],
-["recus","Reçus",'<path d="M6 2h9l5 5v15H6zM15 2v5h5"/>'],
-["messages","Messages",'<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>'],
-["vitrine","Page publique",'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>'],
-["utilisateurs","Utilisateurs",'<path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/>'],
-["parametres","Paramètres",'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>']
+/* ============================================================
+   ICONS — single source of truth, injected via ic()
+   ============================================================ */
+const ICONS = {
+  home:'<path d="M3 9l9-6 9 6M4 10v10h16V10"/>',
+  building:'<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>',
+  users:'<circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>',
+  wallet:'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/>',
+  calc:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/>',
+  receipt:'<path d="M6 2h9l5 5v15H6zM15 2v5h5"/>',
+  message:'<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>',
+  userPlus:'<path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  x:'<path d="M18 6L6 18M6 6l12 12"/>',
+  chevronLeft:'<path d="M15 18l-6-6 6-6"/>',
+  menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',
+  logout:'<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',
+  pin:'<path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+  alert:'<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+  trash:'<path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/>',
+  extLink:'<path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>',
+  printer:'<path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>',
+  phone:'<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.11 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  toggle:'<path d="M8 5v14M16 5v14"/>',
+};
+function ic(name,size=17,extra=''){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" ${extra}>${ICONS[name]||''}</svg>`;}
+const IMG_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="#eff6ff"/><path d="M140 210V120l60-40 60 40v90M170 210v-50h60v50" fill="none" stroke="#93c5fd" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/></svg>`);
+const IMG_ERR = `onerror="this.onerror=null;this.src='${IMG_FALLBACK}'"`;
+
+/* ============================================================
+   STATE — single source of truth for the whole app
+   ============================================================ */
+let uid = 100;
+const nextId = () => (++uid);
+const fcfa = n => new Intl.NumberFormat('fr-FR').format(Math.round(n||0)) + ' FCFA';
+const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+window.state = {
+  agency: { name:"Teranga Immobilier", whatsapp:"221770000000", phone:"+221 77 000 00 00", email:"contact@terangaimmo.sn", address:"Rue 12, Point E, Dakar", description:"Vente et location de biens à Dakar et environs." },
+  currentUser: { name:"Oumar Ba", role:"Gestionnaire principal" },
+  activity: [],
+  properties: [
+    {id:1, title:"Appartement 3 pièces — Mermoz", type:"Appartement", transaction:"Location", city:"Dakar", neighborhood:"Mermoz", price:250000, legal:null, deposit:500000, description:"Appartement lumineux avec balcon.", status:"rented", visible:false,
+      images:["https://picsum.photos/seed/immog-mermoz-1/900/600","https://picsum.photos/seed/immog-mermoz-2/900/600"]},
+    {id:2, title:"Villa 4 chambres — Ngor", type:"Maison", transaction:"Vente", city:"Dakar", neighborhood:"Ngor", price:145000000, legal:"Titre foncier", deposit:null, description:"Villa avec jardin, à deux pas de la plage.", status:"available", visible:true,
+      images:["https://picsum.photos/seed/immog-ngor-1/900/600","https://picsum.photos/seed/immog-ngor-2/900/600","https://picsum.photos/seed/immog-ngor-3/900/600"]},
+    {id:3, title:"Terrain 400m² — Diamniadio", type:"Terrain", transaction:"Vente", city:"Diamniadio", neighborhood:"Zone B", price:35000000, legal:"Titre foncier", deposit:null, description:"Terrain viabilisé, titre foncier disponible.", status:"available", visible:true,
+      images:["https://picsum.photos/seed/immog-diamniadio-1/900/600","https://picsum.photos/seed/immog-diamniadio-2/900/600"]},
+    {id:4, title:"Maison 5 chambres — Almadies", type:"Maison", transaction:"Vente", city:"Dakar", neighborhood:"Almadies", price:180000000, legal:"Titre foncier", deposit:null, description:"Grande maison familiale sécurisée.", status:"sold", visible:false,
+      images:["https://picsum.photos/seed/immog-almadies-1/900/600","https://picsum.photos/seed/immog-almadies-2/900/600"]},
+  ],
+  tenants: [
+    {id:1, propertyId:1, firstName:"Awa", lastName:"Diop", whatsapp:"771112233", email:"", monthlyRent:250000, depositAmount:500000, depositStatus:"paye", startDate:"2026-01-01",
+      schedule:[
+        {month:0,year:2026,due:250000,paid:250000},
+        {month:1,year:2026,due:250000,paid:100000},
+        {month:2,year:2026,due:250000,paid:0},
+      ]},
+  ],
+  payments: [],
+  receipts: [],
+  users: [
+    {id:1, name:"Oumar Ba", email:"oumar@terangaimmo.sn", role:"Gestionnaire principal", active:true},
+    {id:2, name:"Awa Fall", email:"awa@terangaimmo.sn", role:"Gestionnaire secondaire", active:true},
+  ],
+  messages: [],
+};
+
+function scheduleStatus(m){ if(m.paid<=0) return 'unpaid'; if(m.paid<m.due) return 'partial'; return 'paid'; }
+function tenantBalance(t){ return t.schedule.reduce((s,m)=>s+Math.max(0,m.due-m.paid),0); }
+function tenantProperty(t){ return state.properties.find(p=>p.id===t.propertyId); }
+function logActivity(title, sub){ state.activity.unshift({title, sub, date:'Aujourd\'hui'}); state.activity = state.activity.slice(0,6); }
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const navGroups = [
+  { label: "Essentiel", items: [
+    ["dashboard","Tableau de bord","home"],
+    ["biens","Biens","building"],
+    ["locataires","Locataires","users"],
+    ["paiements","Paiements","wallet"],
+  ]},
+  { label: "Gestion", items: [
+    ["vitrine-nav","Page publique","globe"],
+  ]},
+  { label: "Administration", items: [
+    ["utilisateurs","Utilisateurs","userPlus"],
+    ["parametres","Paramètres","settings"],
+  ]},
 ];
-const nav=document.getElementById("nav");
-navItems.forEach(([id,label,icon],i)=>{const a=document.createElement("button");a.className="nav-item w-full flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-ink-600 hover:bg-ink-50";a.innerHTML=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0">${icon}</svg>${label}`;a.onclick=()=>show(id);nav.appendChild(a);});
-function enterApp(){document.getElementById("login").classList.remove("active");document.getElementById("app").classList.add("active");show("dashboard")}
-function logout(){document.getElementById("app").classList.remove("active");document.getElementById("login").classList.add("active")}
-function show(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));const el=document.getElementById(id);if(el)el.classList.add("active");document.querySelectorAll(".nav-item").forEach((n,i)=>n.classList.toggle("active",navItems[i][0]===id));window.scrollTo(0,0);if(innerWidth<900)toggleSidebar(true)}
-function toggleSidebar(forceClose=false){const s=document.getElementById("sidebar"),o=document.getElementById("overlay");if(forceClose){s.classList.remove("open");o.classList.remove("open");return}s.classList.toggle("open");o.classList.toggle("open")}
-function openModal(id){const m=document.getElementById(id);m.classList.remove("hidden");m.classList.add("flex")}
-function closeModal(id){const m=document.getElementById(id);m.classList.add("hidden");m.classList.remove("flex")}
-function toggleSaleRent(v){const sale=v==="sale";document.getElementById("saleFields").classList.toggle("hidden",!sale);document.getElementById("legalField").classList.toggle("hidden",!sale);document.getElementById("rentFields").classList.toggle("hidden",sale);document.getElementById("depositField").classList.toggle("hidden",sale)}
-function publicProperties(){return properties.filter(p=>p.visible&&p.status!=="sold"&&p.status!=="rented")}
-function openPublic(){document.getElementById("app").classList.remove("active");document.getElementById("publicDetail").classList.add("active");const list=publicProperties();document.getElementById("publicDetail").querySelector("main").innerHTML=`<div class="max-w-6xl mx-auto"><div class="rounded-3xl overflow-hidden bg-gradient-to-r from-brand-800 to-brand-600 text-white p-8 lg:p-12"><div class="text-xs uppercase tracking-widest text-brand-200">Teranga Immobilier</div><h1 class="text-4xl font-bold mt-2">Nos biens disponibles</h1><p class="text-brand-100 mt-2">Vente et location à Dakar et environs.</p><p class="text-sm mt-5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-1px;margin-right:2px"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg> Rue 12, Point E, Dakar · WhatsApp +221 77 000 00 00</p></div><div class="flex flex-wrap justify-between gap-3 mt-8"><div><h2 class="text-2xl font-bold">${list.length} bien${list.length>1?"s":""} disponible${list.length>1?"s":""}</h2><p class="text-sm text-ink-500">Mis à jour par l'agence</p></div><button class="btn border border-ink-200" onclick="backApp()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M15 18l-6-6 6-6"/></svg>Dashboard</button></div><div class="grid md:grid-cols-2 gap-6 mt-6">${list.map(p=>publicCard(p.title,p.loc,p.price,p.type)).join(" ")}</div></div>`}
-function publicCard(title,loc,price,type){return `<article class="rounded-3xl border border-ink-200 overflow-hidden hover:shadow-lg transition"><div class="h-64 bg-gradient-to-br from-slate-200 via-brand-100 to-brand-200"></div><div class="p-6"><span class="badge ${type==="Vente"?"bg-brand-50 text-brand-700":"bg-emerald-50 text-emerald-700"}">${type}</span><h3 class="text-xl font-bold mt-4">${title}</h3><p class="text-sm text-ink-500 mt-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-1px;margin-right:2px"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg> ${loc}</p><p class="text-xl font-bold text-brand-600 mt-5">${price}</p><button class="btn bg-brand-600 text-white w-full mt-5" onclick="openPublicProperty('${title}')">Voir le bien</button></div></article>`}
-function openPublicProperty(title){const p=properties.find(x=>x.title===title);if(!p)return;const isRent=p.type==="Location";document.getElementById("publicDetail").querySelector("main").innerHTML=`<div class="max-w-6xl mx-auto"><button class="text-sm text-brand-600 font-semibold" onclick="openPublic()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:2px"><path d="M15 18l-6-6 6-6"/></svg>Tous les biens</button><div class="grid lg:grid-cols-2 gap-8 mt-6"><div><div class="h-80 lg:h-[520px] rounded-3xl bg-gradient-to-br from-slate-200 via-brand-100 to-brand-200"></div><div class="grid grid-cols-4 gap-3 mt-3">${[1,2,3,4].map(()=>'<div class="h-20 rounded-xl bg-slate-200"></div>').join("")}</div></div><div><span class="badge ${isRent?"bg-emerald-50 text-emerald-700":"bg-brand-50 text-brand-700"}">${p.type}</span><h1 class="text-3xl lg:text-4xl font-bold mt-4">${p.title}</h1><p class="text-ink-500 mt-2"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-1px;margin-right:2px"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>${p.loc}</p><p class="text-2xl font-bold text-brand-600 mt-6">${p.price}</p>${isRent?'<div class="grid grid-cols-2 gap-3 mt-6"><div class="rounded-xl bg-ink-50 p-4"><p class="text-xs text-ink-500">Caution</p><p class="font-semibold mt-1">'+(p.deposit||"—")+'</p></div><div class="rounded-xl bg-ink-50 p-4"><p class="text-xs text-ink-500">Conditions</p><p class="font-semibold mt-1">Contrat requis</p></div></div>':'<div class="rounded-xl bg-ink-50 p-4 mt-6"><p class="text-xs text-ink-500">Statut juridique</p><p class="font-semibold mt-1">'+(p.legal||"Titre foncier")+'</p></div>'}<h2 class="font-bold text-lg mt-8">Description</h2><p class="text-ink-600 leading-7 mt-2">Découvrez ce bien proposé par Teranga Immobilier. Contactez l'agence pour obtenir les informations complémentaires, organiser une visite et connaître les conditions.</p><button class="btn bg-[#25D366] text-white w-full mt-8 text-base">Contacter l'agence sur WhatsApp</button><div class="mt-4 text-sm text-ink-500">Teranga Immobilier · Rue 12, Point E, Dakar</div></div></div></div>`}
-function backApp(){document.getElementById("publicDetail").classList.remove("active");document.getElementById("app").classList.add("active");show("vitrine")}
-function openTenant(){alert("Démo : le dossier locataire détaillé doit afficher contrat, caution, état des lieux, photos et échéancier mensuel.");}
-function openReceipt(){alert("Démo : aperçu du reçu ouvert. En production, ce bouton générera un PDF avec le logo et les coordonnées de l'agence.");}
-function filterProperties(q){document.querySelectorAll("#propertyGrid article").forEach(c=>c.style.display=c.innerText.toLowerCase().includes(q.toLowerCase())?"":"none")}
-function filterStatus(v){document.querySelectorAll("#propertyGrid article").forEach(c=>c.style.display=v==="all"||c.dataset.status===v?"":"none")}
-const properties=[
-{title:"Appartement 3 pièces — Mermoz",loc:"Mermoz, Dakar",price:"250 000 FCFA / mois",type:"Location",status:"rented",visible:false,deposit:"500 000 FCFA"},
-{title:"Villa 4 chambres — Ngor",loc:"Ngor, Dakar",price:"145 000 000 FCFA",type:"Vente",status:"available",visible:true,legal:"Titre foncier"},
-{title:"Terrain 400m² — Diamniadio",loc:"Zone B, Diamniadio",price:"35 000 000 FCFA",type:"Vente",status:"available",visible:true,legal:"Titre foncier"},
-{title:"Maison 5 chambres — Almadies",loc:"Almadies, Dakar",price:"180 000 000 FCFA",type:"Vente",status:"sold",visible:false,legal:"Titre foncier"}
-];
-function renderProperties(){const g=document.getElementById("propertyGrid");g.innerHTML=properties.map((p,i)=>`<article data-status="${p.status}" class="card overflow-hidden hover:shadow-lg transition"><div class="h-48 bg-gradient-to-br from-slate-200 via-brand-100 to-brand-200"></div><div class="p-5"><div class="flex justify-between items-center"><span class="badge ${p.status==="available"?"bg-emerald-50 text-emerald-700":p.status==="rented"?"bg-sky-50 text-sky-700":"bg-ink-100 text-ink-600"}">${p.status==="available"?"Disponible":p.status==="rented"?"Loué":"Vendu"}</span><span class="text-xs text-ink-400">${p.type}</span></div><h3 class="font-bold mt-3">${p.title}</h3><p class="text-sm text-ink-500 mt-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-1px;margin-right:2px"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg> ${p.loc}</p><p class="font-bold text-brand-600 mt-4">${p.price}</p><div class="flex items-center justify-between mt-5 pt-4 border-t border-ink-100"><span class="text-xs ${p.visible?"text-emerald-600":"text-ink-400"}">${p.visible?'<span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" style="margin-right:4px"></span>Public':'<span class="inline-block h-1.5 w-1.5 rounded-full bg-ink-300" style="margin-right:4px"></span>Privé'}</span><button class="text-sm font-semibold text-brand-600" onclick="openPublicProperty('${p.title}')">Détails</button></div></div></article>`).join("")}
-function toast(msg){let t=document.getElementById("__toast");if(!t){t=document.createElement("div");t.id="__toast";t.style.cssText="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:.65rem 1.1rem;border-radius:10px;font-size:.85rem;z-index:100;opacity:0;transition:opacity .2s";document.body.appendChild(t);}t.textContent=msg;t.style.opacity="1";clearTimeout(t._h);t._h=setTimeout(()=>t.style.opacity="0",2200);}
-function saveProperty(){const title=(document.getElementById("pTitle").value||"Nouveau bien").trim();const transaction=document.getElementById("pTransaction").value;const city=document.getElementById("pCity").value||"Dakar";const neighborhood=document.getElementById("pNeighborhood").value||"";const isSale=transaction==="sale";const priceRaw=isSale?document.getElementById("pSalePrice").value:document.getElementById("pRent").value;const priceNum=Number(priceRaw)||0;const price=priceNum?new Intl.NumberFormat("fr-FR").format(priceNum)+" FCFA"+(isSale?"":" / mois"):(isSale?"Prix à définir":"Loyer à définir");properties.push({title,loc:(neighborhood?neighborhood+", ":"")+city,price,type:isSale?"Vente":"Location",status:"available",visible:true,legal:isSale?"Titre foncier":undefined,deposit:isSale?undefined:"À définir"});renderProperties();closeModal("propertyModal");toast("Bien ajouté à \"Mes biens\"");}
-function saveUser(){const name=(document.getElementById("uName").value||"Nouvel utilisateur").trim();const email=document.getElementById("uEmail").value||"email@agence.sn";const role=document.getElementById("uRole").value;const isOwner=role==="Gestionnaire principal";const initials=name.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase();const row=document.createElement("div");row.className="p-5 border-t";row.innerHTML=`<div class="flex items-center justify-between"><div><b>${name}</b><p class="text-xs text-ink-400">${email}</p></div><span class="badge ${isOwner?"bg-brand-50 text-brand-700":"bg-ink-100 text-ink-600"}">${role}</span></div>`;document.getElementById("userList").appendChild(row);closeModal("userModal");toast("Invitation envoyée à "+name);}
-renderProperties();
+const navEl = document.getElementById('nav');
+navGroups.forEach(group=>{
+  const heading = document.createElement('p');
+  heading.className = 'px-3 pt-4 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-ink-400 first:pt-0';
+  heading.textContent = group.label;
+  navEl.appendChild(heading);
+  group.items.forEach(([id,label,icon])=>{
+    const btn = document.createElement('button');
+    btn.className = 'nav-item w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-ink-600 hover:bg-ink-50';
+    btn.dataset.id = id;
+    btn.innerHTML = ic(icon,18) + `<span class="truncate">${label}</span>`;
+    btn.onclick = () => { if(id==='vitrine-nav'){ openPublicSite(); } else { show(id); } };
+    navEl.appendChild(btn);
+  });
+});
+
+const RESTRICTED_SECTIONS = ['utilisateurs','parametres'];
+function isSecondary(){ return state.currentUser.role === 'Gestionnaire secondaire'; }
+function show(id){
+  if(isSecondary() && RESTRICTED_SECTIONS.includes(id)){
+    toast('Réservé au gestionnaire principal', 'error');
+    id = 'dashboard';
+  }
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById('sec-'+id);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.id===id));
+  window.scrollTo(0,0);
+  if(innerWidth<1024) toggleSidebar(true);
+  renderAll();
+}
+function toggleRoleView(){
+  state.currentUser.role = isSecondary() ? 'Gestionnaire principal' : 'Gestionnaire secondaire';
+  document.getElementById('sidebarUserRole').textContent = state.currentUser.role;
+  toast('Vue changée : ' + state.currentUser.role + ' (démo)', 'default');
+  applyRoleVisibility();
+  const activeSection = document.querySelector('.nav-item.active')?.dataset.id;
+  if(isSecondary() && RESTRICTED_SECTIONS.includes(activeSection)) show('dashboard'); else renderAll();
+}
+function applyRoleVisibility(){
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.toggle('hidden', isSecondary() && RESTRICTED_SECTIONS.includes(n.dataset.id));
+  });
+}
+function toggleSidebar(forceClose){
+  const s=document.getElementById('sidebar'), o=document.getElementById('overlay');
+  if(forceClose){ s.classList.remove('open'); o.classList.remove('open'); return; }
+  s.classList.toggle('open'); o.classList.toggle('open');
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value.trim();
+  const err = document.getElementById('loginError');
+  if(!email || !pass){ err.classList.remove('hidden'); return; }
+  err.classList.add('hidden');
+  document.getElementById('view-login').classList.remove('active');
+  document.getElementById('view-app').classList.add('active');
+  show('dashboard');
+}
+function doLogout(){
+  document.getElementById('view-app').classList.remove('active');
+  document.getElementById('view-public').classList.remove('active');
+  document.getElementById('view-login').classList.add('active');
+}
+
+/* ============================================================
+   MODALS — generic helpers
+   ============================================================ */
+function openModal(id){ const m=document.getElementById(id); m.classList.remove('hidden'); m.classList.add('flex'); }
+function closeModal(id){ const m=document.getElementById(id); m.classList.add('hidden'); m.classList.remove('flex'); }
+function confirmAction({title, body, confirmLabel='Confirmer', onConfirm}){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').textContent = body;
+  const btn = document.getElementById('confirmActionBtn');
+  btn.textContent = confirmLabel;
+  btn.onclick = () => { onConfirm(); closeModal('modal-confirm'); };
+  document.getElementById('confirmIcon').innerHTML = ic('trash',22);
+  openModal('modal-confirm');
+}
+function toast(msg, variant='default'){
+  const host = document.getElementById('toastHost');
+  const el = document.createElement('div');
+  const colors = variant==='success' ? 'bg-emerald-600' : variant==='error' ? 'bg-red-600' : 'bg-ink-900';
+  el.className = `${colors} text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-pop flex items-center gap-2`;
+  el.innerHTML = (variant==='success'? ic('check',15) : '') + `<span>${msg}</span>`;
+  host.appendChild(el);
+  requestAnimationFrame(()=>el.style.opacity='1');
+  setTimeout(()=>{ el.style.transition='opacity .25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),250); }, 2600);
+}
+
+/* ============================================================
+   PROPERTIES
+   ============================================================ */
+function toggleSaleRent(v){
+  const sale = v==='sale';
+  document.getElementById('saleFields').classList.toggle('hidden', !sale);
+  document.getElementById('legalField').classList.toggle('hidden', !sale);
+  document.getElementById('rentFields').classList.toggle('hidden', sale);
+  document.getElementById('depositField').classList.toggle('hidden', sale);
+}
+window.pendingPropertyImages = [];
+window.__editingPropertyId = null;
+function openPropertyModal(editId){
+  window.__editingPropertyId = editId || null;
+  const p = editId ? state.properties.find(x=>x.id===editId) : null;
+  document.getElementById('propertyModalTitle').textContent = p ? 'Modifier le bien' : 'Ajouter un bien';
+  document.getElementById('propertyModalSub').textContent = p ? 'Mettez à jour les informations, l\'adresse, la description ou les photos.' : 'Créez une fiche complète et choisissez sa visibilité.';
+  document.getElementById('propertySaveBtn').textContent = p ? 'Enregistrer les modifications' : 'Enregistrer le bien';
+  document.getElementById('propertyError').classList.add('hidden');
+  if(p){
+    document.getElementById('pType').value = p.type;
+    document.getElementById('pTransaction').value = p.transaction==='Vente' ? 'sale' : 'rent';
+    toggleSaleRent(p.transaction==='Vente' ? 'sale' : 'rent');
+    document.getElementById('pTitle').value = p.title;
+    document.getElementById('pCity').value = p.city;
+    document.getElementById('pNeighborhood').value = p.neighborhood || '';
+    document.getElementById('pSalePrice').value = p.transaction==='Vente' ? p.price : '';
+    document.getElementById('pRent').value = p.transaction==='Location' ? p.price : '';
+    document.getElementById('pDeposit').value = p.deposit || '';
+    document.getElementById('pLegal').value = p.legal || 'Titre foncier';
+    document.getElementById('pDescription').value = p.description || '';
+    document.getElementById('pVisible').checked = p.visible;
+    window.pendingPropertyImages = (p.images||[]).slice();
+  } else {
+    ['pTitle','pSalePrice','pRent','pDeposit','pNeighborhood','pDescription'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pCity').value='Dakar';
+    document.getElementById('pTransaction').value='sale'; toggleSaleRent('sale');
+    document.getElementById('pVisible').checked=true;
+    window.pendingPropertyImages = [];
+  }
+  renderPendingPropertyImages();
+  openModal('modal-property');
+}
+function onNewPropFileChange(){
+  const input = document.getElementById('newPropFileInput');
+  Array.from(input.files).forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = e => { window.pendingPropertyImages.push(e.target.result); renderPendingPropertyImages(); };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+function renderPendingPropertyImages(){
+  const grid = document.getElementById('newPropPhotosGrid');
+  if(!grid) return;
+  const imgs = window.pendingPropertyImages;
+  grid.innerHTML = imgs.map((src,i)=>`
+    <div class="relative">
+      <img src="${src}" ${IMG_ERR} class="h-16 w-full object-cover rounded-lg border ${i===0?'border-brand-400 ring-2 ring-brand-200':'border-ink-200'}">
+      ${i===0?`<span class="absolute bottom-0.5 left-0.5 badge bg-brand-600 text-white" style="font-size:8px;padding:.1rem .3rem">Principale</span>`:''}
+      <button type="button" class="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-white border border-ink-200 flex items-center justify-center text-red-600" onclick="window.pendingPropertyImages.splice(${i},1);renderPendingPropertyImages()">${ic('x',11)}</button>
+    </div>`).join('');
+}
+function saveProperty(){
+  const title = document.getElementById('pTitle').value.trim();
+  if(!title){ document.getElementById('propertyError').classList.remove('hidden'); return; }
+  const isSale = document.getElementById('pTransaction').value === 'sale';
+  const data = {
+    title,
+    type: document.getElementById('pType').value,
+    transaction: isSale ? 'Vente' : 'Location',
+    city: document.getElementById('pCity').value || 'Dakar',
+    neighborhood: document.getElementById('pNeighborhood').value || '',
+    price: Number(isSale ? document.getElementById('pSalePrice').value : document.getElementById('pRent').value) || 0,
+    legal: isSale ? document.getElementById('pLegal').value : null,
+    deposit: isSale ? null : (Number(document.getElementById('pDeposit').value) || 0),
+    description: document.getElementById('pDescription').value || 'Aucune description fournie.',
+    visible: document.getElementById('pVisible').checked,
+    images: window.pendingPropertyImages.slice(),
+  };
+  if(window.__editingPropertyId){
+    const p = state.properties.find(x=>x.id===window.__editingPropertyId);
+    Object.assign(p, data);
+    logActivity('Bien modifié', p.title);
+    closeModal('modal-property');
+    toast('Bien enregistré avec succès.', 'success');
+    renderAll();
+    if(window.__currentProperty===p.id) renderPropertyDetail();
+  } else {
+    const p = Object.assign({ id: nextId(), status: 'available' }, data);
+    state.properties.push(p);
+    logActivity('Bien ajouté', p.title);
+    closeModal('modal-property');
+    toast('Bien enregistré avec succès.', 'success');
+    show('biens');
+  }
+  window.__editingPropertyId = null;
+}
+function propertyStatusBadge(status){
+  if(status==='available') return `<span class="badge bg-emerald-50 text-emerald-700">${ic('check',12)}Disponible</span>`;
+  if(status==='reserved') return `<span class="badge bg-amber-50 text-amber-700">Réservé</span>`;
+  if(status==='rented') return `<span class="badge bg-sky-100 text-sky-700">Loué</span>`;
+  return `<span class="badge bg-ink-100 text-ink-600">Vendu</span>`;
+}
+function resetPropertyFilters(){
+  document.getElementById('propSearch').value='';
+  document.getElementById('propFilterStatus').value='all';
+  document.getElementById('propFilterType').value='all';
+  renderProperties();
+}
+function renderProperties(){
+  const q = (document.getElementById('propSearch')?.value||'').toLowerCase();
+  const fStatus = document.getElementById('propFilterStatus')?.value||'all';
+  const fType = document.getElementById('propFilterType')?.value||'all';
+  const list = state.properties.filter(p =>
+    (fStatus==='all'||p.status===fStatus) &&
+    (fType==='all'||p.transaction===fType) &&
+    (!q || (p.title+p.neighborhood+p.city).toLowerCase().includes(q))
+  );
+  const grid = document.getElementById('propertyGrid');
+  if(!grid) return;
+  if(list.length===0){
+    grid.innerHTML = `<div class="empty col-span-full">${ic('building',34,'class="text-ink-300 mb-3"')}<p class="font-semibold text-ink-700">Aucun bien ne correspond</p><p class="text-sm mt-1">Essayez d'autres filtres ou ajoutez un nouveau bien.</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(p => `
+    <article class="card overflow-hidden hover:shadow-pop transition-shadow">
+      <div class="h-40 cursor-pointer ${p.images&&p.images.length?'':'bg-gradient-to-br from-brand-100 via-sky-50 to-brand-50 flex items-center justify-center text-brand-300'}" onclick="openPropertyDetail(${p.id})">
+        ${p.images&&p.images.length?`<img src="${p.images[0]}" ${IMG_ERR} class="h-40 w-full object-cover">`:ic('building',34)}
+      </div>
+      <div class="p-4">
+        <div class="flex justify-between items-center gap-2">
+          ${propertyStatusBadge(p.status)}
+          <span class="text-xs font-semibold text-ink-400 uppercase tracking-wide">${p.transaction}</span>
+        </div>
+        <h3 class="font-bold mt-3 leading-snug cursor-pointer hover:text-brand-600" onclick="openPropertyDetail(${p.id})">${p.title}</h3>
+        <p class="text-sm text-ink-500 mt-1 flex items-center gap-1">${ic('pin',13)}${p.neighborhood?p.neighborhood+', ':''}${p.city}</p>
+        <p class="font-bold text-brand-600 mt-3">${p.transaction==='Vente'?fcfa(p.price):fcfa(p.price)+' / mois'}</p>
+        <div class="flex items-center justify-between mt-4 pt-3 border-t border-ink-100">
+          <span class="text-xs font-medium flex items-center gap-1.5 ${p.visible?'text-emerald-600':'text-ink-400'}">
+            <span class="h-1.5 w-1.5 rounded-full ${p.visible?'bg-emerald-500':'bg-ink-300'}"></span>${p.visible?'Public':'Privé'}
+          </span>
+          <div class="relative">
+            <button class="text-sm font-semibold text-brand-600" onclick="togglePropertyMenu(${p.id})">Actions</button>
+            <div id="menu-${p.id}" class="hidden absolute right-0 bottom-full mb-2 w-48 bg-white border border-ink-200 rounded-xl shadow-pop py-1.5 z-10 text-sm">
+              <button class="w-full text-left px-3.5 py-2 hover:bg-ink-50" onclick="openPropertyModal(${p.id})">Modifier le bien</button>
+              <div class="my-1 border-t border-ink-100"></div>
+              ${p.status!=='sold'&&p.status!=='rented'?`
+                <button class="w-full text-left px-3.5 py-2 hover:bg-ink-50" onclick="markPropertyStatus(${p.id},'available')">Marquer disponible</button>
+                <button class="w-full text-left px-3.5 py-2 hover:bg-ink-50" onclick="markPropertyStatus(${p.id},'reserved')">Marquer ${p.transaction==='Vente'?'sous option':'en réservation'}</button>
+                <button class="w-full text-left px-3.5 py-2 hover:bg-ink-50" onclick="markPropertyStatus(${p.id},'rented')">Marquer comme loué</button>
+                <button class="w-full text-left px-3.5 py-2 hover:bg-ink-50" onclick="markPropertyStatus(${p.id},'sold')">Marquer comme vendu</button>
+                <div class="my-1 border-t border-ink-100"></div>
+              `:''}
+              <button class="w-full text-left px-3.5 py-2 hover:bg-ink-50" onclick="togglePropertyVisibility(${p.id})">${p.visible?'Retirer du public':'Rendre public'}</button>
+              ${!isSecondary()?`<button class="w-full text-left px-3.5 py-2 hover:bg-ink-50 text-red-600" onclick="deleteProperty(${p.id})">Supprimer</button>`:''}
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+function togglePropertyMenu(id){
+  document.querySelectorAll('[id^="menu-"]').forEach(m=>{ if(m.id!=='menu-'+id) m.classList.add('hidden'); });
+  document.getElementById('menu-'+id).classList.toggle('hidden');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('[onclick^="togglePropertyMenu"]')) document.querySelectorAll('[id^="menu-"]').forEach(m=>m.classList.add('hidden'));
+});
+function togglePropertyVisibility(id){
+  const p = state.properties.find(x=>x.id===id); p.visible = !p.visible;
+  renderAll(); toast(p.visible?'Bien publié sur la vitrine':'Bien retiré de la vitrine','success');
+}
+function markPropertyStatus(id, status){
+  const p = state.properties.find(x=>x.id===id);
+  p.status = status;
+  if(status!=='available') p.visible = false;
+  renderAll();
+  if(status==='rented'){
+    toast('Bien marqué comme loué', 'success');
+    openTenantModal(p.id);
+  } else if(status==='reserved'){
+    toast(p.transaction==='Vente' ? 'Bien marqué sous option' : 'Bien marqué en réservation', 'success');
+  } else {
+    toast(status==='sold' ? 'Bien marqué comme vendu' : 'Bien marqué disponible', 'success');
+  }
+}
+function deleteProperty(id){
+  const p = state.properties.find(x=>x.id===id);
+  const hasTenant = state.tenants.some(t=>t.propertyId===id);
+  if(hasTenant){ toast('Impossible : un locataire est encore rattaché à ce bien', 'error'); return; }
+  confirmAction({
+    title:'Supprimer ce bien ?',
+    body:`"${p.title}" sera définitivement supprimé de votre portefeuille.`,
+    confirmLabel:'Supprimer',
+    onConfirm:()=>{ state.properties = state.properties.filter(x=>x.id!==id); if(window.__currentProperty===id) show('biens'); renderAll(); toast('Bien supprimé','success'); }
+  });
+}
+
+/* ============================================================
+   PROPERTY DETAIL — gallery, full info, edit entry point
+   ============================================================ */
+function openPropertyDetail(id){
+  window.__currentProperty = id;
+  window.__propertyDetailImgIndex = 0;
+  show('bien-detail');
+}
+function setPropertyDetailImage(i){ window.__propertyDetailImgIndex = i; renderPropertyDetail(); }
+function renderPropertyDetail(){
+  const el = document.getElementById('propertyDetail');
+  if(!el) return;
+  const p = state.properties.find(x=>x.id===window.__currentProperty);
+  if(!p){ el.innerHTML = `<p class="text-ink-500">Sélectionnez un bien depuis la liste.</p>`; return; }
+  const imgs = p.images || [];
+  const activeIdx = Math.min(window.__propertyDetailImgIndex||0, Math.max(0, imgs.length-1));
+  const tenant = state.tenants.find(t=>t.propertyId===p.id);
+  el.innerHTML = `
+    <div class="flex flex-wrap justify-between gap-4 mb-5">
+      <div>
+        <div class="flex items-center gap-2 mb-1">${propertyStatusBadge(p.status)}<span class="text-xs font-semibold text-ink-400 uppercase tracking-wide">${p.transaction}</span></div>
+        <h1 class="text-2xl lg:text-3xl font-bold">${p.title}</h1>
+        <p class="text-sm text-ink-500 mt-1 flex items-center gap-1">${ic('pin',14)}${p.neighborhood?p.neighborhood+', ':''}${p.city}</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary" onclick="openPropertyModal(${p.id})">${ic('plus',15)}Modifier le bien</button>
+      </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5">
+      <div class="lg:col-span-2 space-y-5">
+        <div class="card overflow-hidden">
+          <div class="h-72 lg:h-96 ${imgs.length?'':'bg-gradient-to-br from-brand-100 via-sky-50 to-brand-50 flex items-center justify-center text-brand-300'}">
+            ${imgs.length?`<img src="${imgs[activeIdx]}" ${IMG_ERR} class="h-full w-full object-cover">`:ic('building',56)}
+          </div>
+          ${imgs.length>1?`<div class="flex gap-2 p-3 overflow-x-auto">${imgs.map((src,i)=>`<img src="${src}" ${IMG_ERR} class="h-16 w-20 object-cover rounded-lg cursor-pointer shrink-0 ${i===activeIdx?'ring-2 ring-brand-500':'opacity-70'}" onclick="setPropertyDetailImage(${i})">`).join('')}</div>`:''}
+          ${imgs.length===0?`<div class="p-4 text-sm text-ink-500 border-t border-ink-100">Aucune photo ajoutée. <button class="text-brand-600 font-semibold" onclick="openPropertyModal(${p.id})">Ajouter des photos</button></div>`:''}
+        </div>
+        <div class="card p-5">
+          <h2 class="font-bold mb-2">Description</h2>
+          <p class="text-ink-600 leading-7">${p.description}</p>
+        </div>
+      </div>
+      <div class="space-y-5">
+        <div class="card p-5">
+          <p class="text-xs text-ink-500">${p.transaction==='Vente'?'Prix de vente':'Loyer mensuel'}</p>
+          <p class="text-2xl font-bold text-brand-600 mt-1">${fcfa(p.price)}${p.transaction==='Location'?' / mois':''}</p>
+          ${p.transaction==='Vente'
+            ? `<div class="mt-4 pt-4 border-t border-ink-100 text-sm flex justify-between"><span class="text-ink-500">Statut juridique</span><b>${p.legal||'—'}</b></div>`
+            : `<div class="mt-4 pt-4 border-t border-ink-100 text-sm flex justify-between"><span class="text-ink-500">Caution</span><b>${fcfa(p.deposit||0)}</b></div>`}
+          <div class="mt-3 text-sm flex justify-between"><span class="text-ink-500">Visibilité</span><b class="${p.visible?'text-emerald-600':'text-ink-400'}">${p.visible?'Public':'Privé'}</b></div>
+        </div>
+        ${tenant ? `
+        <div class="card p-5 bg-sky-50 border-sky-100">
+          <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">Locataire actuel</p>
+          <p class="font-bold mt-1">${tenant.firstName} ${tenant.lastName}</p>
+          <button class="btn btn-secondary btn-sm w-full mt-3" onclick="openTenantDetail(${tenant.id})">Voir le dossier →</button>
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+
+
+/* ============================================================
+   TENANTS
+   ============================================================ */
+function generateSchedule(startDateStr, months, monthlyRent){
+  const start = startDateStr ? new Date(startDateStr) : new Date();
+  const schedule = [];
+  for(let i=0;i<months;i++){
+    const d = new Date(start.getFullYear(), start.getMonth()+i, 1);
+    schedule.push({month:d.getMonth(), year:d.getFullYear(), due:monthlyRent, paid: i===0?0:0});
+  }
+  return schedule;
+}
+function openTenantModal(prefillPropertyId){
+  ['tFirst','tLast','tWhatsapp','tEmail','tAddress','tRent','tDeposit','tNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tStart').value = new Date().toISOString().slice(0,10);
+  document.getElementById('tDuration').value = '6';
+  document.getElementById('tPaymentDay').value = '1';
+  document.getElementById('tenantError').classList.add('hidden');
+  const sel = document.getElementById('tProperty');
+  const available = state.properties.filter(p=>p.transaction==='Location' && p.status!=='sold' && (p.status!=='rented' || p.id===prefillPropertyId) && !state.tenants.some(t=>t.propertyId===p.id));
+  if(available.length===0){
+    sel.innerHTML = `<option value="">Aucun bien à louer disponible — ajoutez-en un d'abord</option>`;
+  } else {
+    sel.innerHTML = available.map(p=>`<option value="${p.id}">${p.title}</option>`).join('');
+  }
+  if(prefillPropertyId){ sel.value = prefillPropertyId; }
+  fillTenantRentFromProperty();
+  document.getElementById('tenantModalSub').textContent = prefillPropertyId ? 'Ce bien vient d\'être marqué comme loué — complétez le dossier.' : 'Créez le dossier et l\'échéancier de loyer.';
+  openModal('modal-tenant');
+}
+function fillTenantRentFromProperty(){
+  const id = Number(document.getElementById('tProperty').value);
+  const p = state.properties.find(x=>x.id===id);
+  if(p){ document.getElementById('tRent').value = p.price; document.getElementById('tDeposit').value = p.deposit||''; }
+}
+function saveTenant(){
+  const first = document.getElementById('tFirst').value.trim();
+  const last = document.getElementById('tLast').value.trim();
+  const propertyId = Number(document.getElementById('tProperty').value);
+  if(!first || !last || !propertyId){ document.getElementById('tenantError').classList.remove('hidden'); return; }
+  const rent = Number(document.getElementById('tRent').value)||0;
+  const duration = Number(document.getElementById('tDuration').value);
+  const startDate = document.getElementById('tStart').value;
+  const t = {
+    id: nextId(), propertyId, firstName:first, lastName:last,
+    whatsapp: document.getElementById('tWhatsapp').value, email: document.getElementById('tEmail').value,
+    address: document.getElementById('tAddress').value,
+    monthlyRent: rent, depositAmount: Number(document.getElementById('tDeposit').value)||0, depositStatus:'paye',
+    startDate,
+    endDate: addMonthsToDate(startDate, duration),
+    paymentDay: Number(document.getElementById('tPaymentDay').value)||1,
+    notes: document.getElementById('tNotes').value,
+    schedule: generateSchedule(startDate, duration, rent),
+  };
+  state.tenants.push(t);
+  const p = state.properties.find(x=>x.id===propertyId);
+  if(p){ p.status='rented'; p.visible=false; }
+  logActivity('Locataire ajouté', first+' '+last);
+  closeModal('modal-tenant');
+  toast('Dossier locataire créé avec échéancier', 'success');
+  show('locataires');
+}
+function addMonthsToDate(dateStr, months){
+  if(!dateStr) return '';
+  const d = new Date(dateStr);
+  d.setMonth(d.getMonth()+months);
+  return d.toISOString().slice(0,10);
+}
+function populateMonthFilter(){
+  const sel = document.getElementById('tenantFilterMonth');
+  if(!sel || sel.options.length>0) return;
+  const now = new Date();
+  let html = '<option value="all">Tous les mois</option>';
+  for(let m=0;m<12;m++){ html += `<option value="${m}-${now.getFullYear()}">${monthNames[m]} ${now.getFullYear()}</option>`; }
+  sel.innerHTML = html;
+  sel.value = 'all';
+}
+function populateTenantPropertyFilter(){
+  const sel = document.getElementById('tenantFilterProperty');
+  if(!sel) return;
+  const prev = sel.value;
+  const usedPropertyIds = new Set(state.tenants.map(t=>t.propertyId));
+  const options = state.properties.filter(p=>usedPropertyIds.has(p.id));
+  sel.innerHTML = '<option value="all">Tous les biens</option>' + options.map(p=>`<option value="${p.id}">${p.title}</option>`).join('');
+  if(prev && [...sel.options].some(o=>o.value===prev)) sel.value = prev;
+}
+function isPastMonth(m,y){ const now=new Date(); return (y<now.getFullYear()) || (y===now.getFullYear() && m<now.getMonth()); }
+function tenantArrears(t){ return t.schedule.filter(m=>isPastMonth(m.month,m.year)).reduce((s,m)=>s+Math.max(0,m.due-m.paid),0); }
+function monthStatusFor(t, monthVal){
+  if(monthVal==='all') return tenantBalance(t)>0 ? 'late' : 'ok';
+  const [m,y] = monthVal.split('-').map(Number);
+  const entry = t.schedule.find(x=>x.month===m && x.year===y);
+  if(!entry) return null;
+  return scheduleStatus(entry)==='paid' ? 'ok' : 'late';
+}
+function tenantStatusInfo(t){
+  const arrears = tenantArrears(t);
+  if(arrears>0) return {label:'En retard', tone:'bg-red-50 text-red-600'};
+  const now = new Date();
+  const curEntry = t.schedule.find(m=>m.month===now.getMonth() && m.year===now.getFullYear());
+  if(curEntry && scheduleStatus(curEntry)!=='paid') return {label:'À payer bientôt', tone:'bg-amber-50 text-amber-700'};
+  return {label:'À jour', tone:'bg-emerald-50 text-emerald-700'};
+}
+function tenantLastPayment(t){
+  const paidMonths = t.schedule.filter(m=>m.paid>0).sort((a,b)=> b.year-a.year || b.month-a.month);
+  if(!paidMonths.length) return null;
+  return paidMonths[0];
+}
+function tenantNextDue(t){
+  const due = t.schedule.filter(m=>scheduleStatus(m)!=='paid').sort((a,b)=> a.year-b.year || a.month-b.month);
+  return due.length ? due[0] : null;
+}
+function resetTenantFilters(){
+  document.getElementById('tenantSearch').value = '';
+  document.getElementById('tenantFilterProperty').value = 'all';
+  document.getElementById('tenantFilterMonth').value = 'all';
+  document.getElementById('tenantFilterStatus').value = 'all';
+  document.getElementById('tenantFilterArrears').checked = false;
+  renderTenantList();
+}
+function renderTenantList(){
+  populateMonthFilter();
+  populateTenantPropertyFilter();
+  const body = document.getElementById('tenantTableBody');
+  const empty = document.getElementById('tenantEmpty');
+  if(!body) return;
+  if(state.tenants.length===0){
+    body.innerHTML=''; empty.classList.remove('hidden');
+    empty.innerHTML = `<div class="empty">${ic('users',34,'class="text-ink-300 mb-3"')}<p class="font-semibold text-ink-700">Aucun locataire pour l'instant</p><p class="text-sm mt-1 mb-4">Les dossiers se créent automatiquement quand vous marquez un bien comme loué, ou manuellement.</p><button class="btn btn-primary btn-sm" onclick="openTenantModal()">Ajouter un locataire</button></div>`;
+    return;
+  }
+  const q = (document.getElementById('tenantSearch')?.value||'').toLowerCase();
+  const propVal = document.getElementById('tenantFilterProperty').value;
+  const monthVal = document.getElementById('tenantFilterMonth').value || 'all';
+  const statusVal = document.getElementById('tenantFilterStatus').value;
+  const arrearsOnly = document.getElementById('tenantFilterArrears').checked;
+  const list = state.tenants.filter(t=>{
+    if(q && !(`${t.firstName} ${t.lastName}`.toLowerCase().includes(q))) return false;
+    if(propVal!=='all' && String(t.propertyId)!==String(propVal)) return false;
+    const st = monthStatusFor(t, monthVal);
+    if(statusVal!=='all'){ if(st===null || st!==statusVal) return false; }
+    if(arrearsOnly && tenantArrears(t)<=0) return false;
+    return true;
+  });
+  if(list.length===0){
+    body.innerHTML=''; empty.classList.remove('hidden');
+    empty.innerHTML = `<div class="empty">${ic('search',30,'class="text-ink-300 mb-3"')}<p class="font-semibold text-ink-700">Aucun locataire ne correspond à ces filtres</p><p class="text-sm mt-1">Essayez d'élargir votre recherche.</p></div>`;
+    return;
+  }
+  empty.classList.add('hidden');
+  body.innerHTML = list.map(t=>{
+    const p = tenantProperty(t);
+    const arrears = tenantArrears(t);
+    const status = tenantStatusInfo(t);
+    const lastPay = tenantLastPayment(t);
+    const nextDue = tenantNextDue(t);
+    return `<tr>
+      <td data-label="Locataire" class="font-semibold">${t.firstName} ${t.lastName}</td>
+      <td data-label="Bien" class="text-ink-500">${p?p.title:'—'}</td>
+      <td data-label="Dernier paiement" class="text-ink-500">${lastPay?`${monthNames[lastPay.month]} ${lastPay.year} · ${fcfa(lastPay.paid)}`:'—'}</td>
+      <td data-label="Prochaine échéance" class="text-ink-500">${nextDue?`${monthNames[nextDue.month]} ${nextDue.year} · ${fcfa(nextDue.due-nextDue.paid)}`:'Aucune'}</td>
+      <td data-label="Statut"><span class="badge ${status.tone}">${status.label}</span></td>
+      <td data-label="Arriérés">${arrears>0?`<span class="badge bg-red-50 text-red-600">${fcfa(arrears)}</span>`:`<span class="text-xs text-emerald-600 font-medium">Aucun</span>`}</td>
+      <td data-label="Action" class="text-right pr-4">
+        <div class="flex items-center justify-end gap-3">
+          ${tenantBalance(t)>0?`<button class="btn-sm btn btn-secondary" onclick="quickRelance(${t.id})">${ic('message',13)}Relancer</button>`:''}
+          <button class="text-brand-600 font-semibold text-sm whitespace-nowrap" onclick="openTenantDetail(${t.id})">Dossier →</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function quickRelance(tenantId){
+  const t = state.tenants.find(x=>x.id===tenantId);
+  if(!t) return;
+  const balance = tenantBalance(t);
+  if(balance<=0){ toast('Ce locataire est déjà à jour','success'); return; }
+  const overdue = t.schedule.find(m=>scheduleStatus(m)!=='paid');
+  const monthLabel = overdue ? `${monthNames[overdue.month]} ${overdue.year}` : '';
+  const text = `Bonjour ${t.firstName}, nous vous rappelons que votre loyer de ${monthLabel} d'un montant de ${fcfa(balance)} reste à régler. Merci de nous contacter afin de régulariser votre situation.\n${state.agency.name}`;
+  state.messages.push({tenantId:t.id, tenantName:`${t.firstName} ${t.lastName}`, channel:'WhatsApp', text, date:new Date().toLocaleDateString('fr-FR')});
+  logActivity('Relance envoyée', `WhatsApp · ${t.firstName} ${t.lastName}`);
+  toast('Relance préparée avec succès', 'success');
+  renderAll();
+}
+function openTenantDetail(id){
+  window.__currentTenant = id;
+  const t = state.tenants.find(x=>x.id===id);
+  window.__tenantDetailYear = t && t.schedule.length ? t.schedule[0].year : new Date().getFullYear();
+  window.__selectedMonths = new Set();
+  show('locataire-detail');
+}
+function setTenantDetailYear(y){ window.__tenantDetailYear = Number(y); window.__selectedMonths = new Set(); renderTenantDetail(); }
+function tenantYearOptions(t){
+  const years = new Set(t.schedule.map(m=>m.year));
+  years.add(new Date().getFullYear());
+  years.add(window.__tenantDetailYear);
+  return Array.from(years).sort();
+}
+function monthKey(m,y){ return m+'-'+y; }
+function toggleMonthCheck(m,y){
+  const key = monthKey(m,y);
+  if(window.__selectedMonths.has(key)) window.__selectedMonths.delete(key); else window.__selectedMonths.add(key);
+  renderTenantDetail();
+}
+function addScheduleMonth(tenantId,m,y){
+  const t = state.tenants.find(x=>x.id===tenantId);
+  if(t.schedule.some(x=>x.month===m && x.year===y)) return;
+  t.schedule.push({month:m, year:y, due:t.monthlyRent, paid:0});
+  t.schedule.sort((a,b)=> a.year-b.year || a.month-b.month);
+  window.__selectedMonths.add(monthKey(m,y));
+  renderTenantDetail();
+  toast('Échéance ajoutée à l\'échéancier','success');
+}
+function renderTenantDetail(){
+  const el = document.getElementById('tenantDetail');
+  const t = state.tenants.find(x=>x.id===window.__currentTenant);
+  if(!t){ el.innerHTML = `<p class="text-ink-500">Sélectionnez un locataire depuis la liste.</p>`; return; }
+  if(!window.__selectedMonths) window.__selectedMonths = new Set();
+  const p = tenantProperty(t);
+  const balance = tenantBalance(t);
+  const arrears = tenantArrears(t);
+  const year = window.__tenantDetailYear || new Date().getFullYear();
+  const years = tenantYearOptions(t);
+
+  let selectedTotal = 0;
+  const monthRows = [];
+  for(let m=0;m<12;m++){
+    const entry = t.schedule.find(x=>x.month===m && x.year===year);
+    const key = monthKey(m,year);
+    const checked = window.__selectedMonths.has(key);
+    if(entry && checked) selectedTotal += Math.max(0, entry.due-entry.paid);
+    if(!entry){
+      monthRows.push(`<div class="flex items-center justify-between rounded-xl border border-dashed border-ink-200 px-4 py-3 text-sm text-ink-400">
+        <span>${monthNames[m]} ${year}</span>
+        <button class="text-brand-600 font-semibold text-xs flex items-center gap-1" onclick="addScheduleMonth(${t.id},${m},${year})">${ic('plus',12)}Ajouter cette échéance</button>
+      </div>`);
+    } else {
+      const st = scheduleStatus(entry);
+      const tone = st==='paid'?'bg-emerald-50 text-emerald-700':st==='partial'?'bg-amber-50 text-amber-700':'bg-red-50 text-red-600';
+      const label = st==='paid'?'Payé':st==='partial'?'Partiel':'Impayé';
+      monthRows.push(`<div class="flex items-center gap-3 rounded-xl border ${checked?'border-brand-300 bg-brand-50/40':'border-ink-100'} px-4 py-3 text-sm">
+        ${st!=='paid' ? `<input type="checkbox" class="h-4 w-4 accent-brand-600 shrink-0" ${checked?'checked':''} onchange="toggleMonthCheck(${m},${year})">` : `<span class="w-4 shrink-0 text-emerald-600">${ic('check',15)}</span>`}
+        <span class="font-medium flex-1">${monthNames[m]} ${year}${entry.lastPaymentDate?` <span class="text-ink-400 font-normal">· payé le ${entry.lastPaymentDate}</span>`:''}</span>
+        <span class="text-ink-500">${fcfa(entry.paid)} / ${fcfa(entry.due)}</span>
+        <span class="badge ${tone} shrink-0">${label}</span>
+      </div>`);
+    }
+  }
+
+  el.innerHTML = `
+    <div class="flex flex-wrap justify-between gap-4 mb-5">
+      <div>
+        <h1 class="text-2xl lg:text-3xl font-bold">${t.firstName} ${t.lastName}</h1>
+        <p class="text-sm text-ink-500 mt-1">${p?p.title:'Bien introuvable'} · ${fcfa(t.monthlyRent)}/mois</p>
+      </div>
+      <div class="flex gap-2">
+        ${balance>0?`<button class="btn btn-secondary" onclick="quickRelance(${t.id})">${ic('message',15)}Relancer</button>`:''}
+      </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5">
+      <div class="lg:col-span-2 space-y-5">
+        <div class="card p-5">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <h2 class="font-bold">Échéancier — ${year}</h2>
+            <select class="input max-w-[120px]" onchange="setTenantDetailYear(this.value)">
+              ${years.map(y=>`<option value="${y}" ${y===year?'selected':''}>${y}</option>`).join('')}
+            </select>
+          </div>
+          <div class="space-y-2">${monthRows.join('')}</div>
+
+          <div class="mt-5 pt-4 border-t border-ink-100">
+            <div id="tenantPaySummary" class="text-sm mb-3">
+              ${selectedTotal>0
+                ? `<p class="font-semibold">${window.__selectedMonths.size} mois sélectionné${window.__selectedMonths.size>1?'s':''} · total dû : ${fcfa(selectedTotal)}</p>`
+                : `<p class="text-ink-500">Cochez un ou plusieurs mois ci-dessus, ou laissez tout décoché pour un règlement automatique des échéances les plus anciennes.</p>`}
+            </div>
+            <div class="grid sm:grid-cols-3 gap-3">
+              <input id="tenantPayAmount" type="number" class="input sm:col-span-1" placeholder="Montant (FCFA)" value="${selectedTotal>0?selectedTotal:''}">
+              <select id="tenantPayMethod" class="input sm:col-span-1"><option>Espèces</option><option>Wave</option><option>Orange Money</option><option>Autre</option></select>
+              <button class="btn btn-primary sm:col-span-1" onclick="recordTenantPayment(${t.id})">${ic('wallet',15)}Enregistrer le paiement</button>
+            </div>
+            <p id="tenantPayError" class="text-xs text-red-600 mt-2 hidden">Merci d'indiquer un montant supérieur à 0.</p>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h2 class="font-bold mb-4">Historique des paiements</h2>
+          <div id="tenantPayHistory" class="space-y-2 text-sm"></div>
+        </div>
+        <div class="card p-5">
+          <h2 class="font-bold mb-4">Rappels envoyés</h2>
+          <div id="tenantMsgHistory" class="space-y-2 text-sm"></div>
+        </div>
+      </div>
+      <div class="space-y-5">
+        <div class="card p-5">
+          <h2 class="font-bold mb-3">Informations</h2>
+          <dl class="text-sm space-y-2.5">
+            <div class="flex justify-between"><dt class="text-ink-500">WhatsApp</dt><dd class="font-medium">${t.whatsapp||'—'}</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-500">Email</dt><dd class="font-medium">${t.email||'—'}</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-500">Adresse</dt><dd class="font-medium text-right">${t.address||'—'}</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-500">Début contrat</dt><dd class="font-medium">${t.startDate||'—'}</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-500">Fin contrat</dt><dd class="font-medium">${t.endDate||'—'}</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-500">Jour de paiement</dt><dd class="font-medium">Le ${t.paymentDay||1} du mois</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-500">Caution</dt><dd class="font-medium">${fcfa(t.depositAmount)}</dd></div>
+            ${t.notes?`<div class="pt-2 border-t border-ink-100"><dt class="text-ink-500 mb-1">Conditions particulières</dt><dd class="font-medium">${t.notes}</dd></div>`:''}
+          </dl>
+        </div>
+        <div class="card p-5 ${balance>0?'bg-red-50 border-red-100':'bg-emerald-50 border-emerald-100'}">
+          <p class="text-xs font-semibold uppercase tracking-wide ${balance>0?'text-red-600':'text-emerald-700'}">Solde total</p>
+          <p class="text-2xl font-bold mt-1 ${balance>0?'text-red-700':'text-emerald-700'}">${balance>0?fcfa(balance)+' dû':'À jour'}</p>
+          ${arrears>0?`<p class="text-xs text-red-600 mt-2">dont ${fcfa(arrears)} d'arriérés (mois passés)</p>`:''}
+        </div>
+      </div>
+    </div>
+  `;
+  const hist = state.payments.filter(pay=>pay.tenantId===t.id);
+  const histEl = document.getElementById('tenantPayHistory');
+  histEl.innerHTML = hist.length ? [...hist].reverse().map(pay=>{
+    const receipt = state.receipts.find(r=>r.paymentId===pay.id);
+    return `<div class="flex items-center justify-between border-b border-ink-100 pb-2.5 last:border-0 last:pb-0">
+      <span>${pay.months.join(', ')} · ${pay.method} · ${pay.date}</span>
+      <div class="flex items-center gap-3 shrink-0">
+        <b>${fcfa(pay.amount)}</b>
+        ${receipt?`<button class="text-brand-600 font-semibold text-xs" onclick="showReceiptModal(${receipt.id})">Voir le reçu</button>`:''}
+      </div>
+    </div>`;
+  }).join('') : `<p class="text-ink-400">Aucun paiement enregistré pour l'instant.</p>`;
+  const msgs = state.messages.filter(m=>m.tenantId===t.id);
+  const msgEl = document.getElementById('tenantMsgHistory');
+  msgEl.innerHTML = msgs.length ? [...msgs].reverse().map(m=>`
+    <div class="rounded-xl bg-ink-50 p-3">
+      <div class="flex items-center justify-between text-xs text-ink-500"><span>${m.channel}</span><span>${m.date||''}</span></div>
+      <p class="mt-1">${m.text}</p>
+    </div>`).join('') : `<p class="text-ink-400">Aucun rappel envoyé pour l'instant.</p>`;
+}
+function recordTenantPayment(tenantId){
+  const t = state.tenants.find(x=>x.id===tenantId);
+  const amount = Number(document.getElementById('tenantPayAmount').value)||0;
+  const method = document.getElementById('tenantPayMethod').value;
+  if(amount<=0){ document.getElementById('tenantPayError').classList.remove('hidden'); return; }
+  document.getElementById('tenantPayError').classList.add('hidden');
+  const selected = window.__selectedMonths && window.__selectedMonths.size>0;
+  let targets;
+  if(selected){
+    targets = Array.from(window.__selectedMonths).map(k=>{ const [m,y]=k.split('-').map(Number); return t.schedule.find(x=>x.month===m && x.year===y); }).filter(Boolean);
+    targets.sort((a,b)=> a.year-b.year || a.month-b.month);
+  } else {
+    targets = t.schedule.slice().sort((a,b)=> a.year-b.year || a.month-b.month);
+  }
+  let remaining = amount;
+  const monthsTouched = [];
+  const todayStr = new Date().toLocaleDateString('fr-FR');
+  for(const m of targets){
+    const due = Math.max(0, m.due - m.paid);
+    if(due<=0) continue;
+    const alloc = Math.min(remaining, due);
+    if(alloc>0){ m.paid += alloc; m.lastPaymentDate = todayStr; monthsTouched.push(`${monthNames[m.month]} ${m.year}`); remaining -= alloc; }
+    if(remaining<=0) break;
+  }
+  const applied = amount - remaining;
+  const payment = { id: nextId(), tenantId, propertyId: t.propertyId, amount: applied, method, date: todayStr, months: monthsTouched.length?monthsTouched:['Avance'] };
+  state.payments.push(payment);
+  const receiptNumber = 'REC-2026-' + String(state.receipts.length+1).padStart(4,'0');
+  const receipt = { id: nextId(), number: receiptNumber, paymentId: payment.id, tenantId, amount: applied, date: payment.date, months: payment.months, generatedBy: state.currentUser.name };
+  state.receipts.push(receipt);
+  logActivity('Paiement enregistré', `${t.firstName} ${t.lastName} · ${fcfa(applied)}`);
+  window.__selectedMonths = new Set();
+  toast('Paiement enregistré. Reçu généré.', 'success');
+  renderAll();
+  showReceiptModal(receipt.id);
+}
+
+/* ============================================================
+   PAYMENTS (entry points)
+   ============================================================ */
+function openTenantPicker(){
+  const sel = document.getElementById('pickerTenant');
+  if(state.tenants.length===0){ toast('Ajoutez d\'abord un locataire','error'); return; }
+  sel.innerHTML = state.tenants.map(t=>`<option value="${t.id}">${t.firstName} ${t.lastName}</option>`).join('');
+  openModal('modal-tenant-picker');
+}
+function continueFromPicker(){
+  const id = Number(document.getElementById('pickerTenant').value);
+  closeModal('modal-tenant-picker');
+  openTenantDetail(id);
+}
+function paymentStats(){
+  const total = state.payments.reduce((s,p)=>s+p.amount,0);
+  const partial = state.tenants.reduce((s,t)=>s+t.schedule.filter(m=>scheduleStatus(m)==='partial').length,0);
+  const due = state.tenants.reduce((s,t)=>s+tenantBalance(t),0);
+  return {total, partial, due};
+}
+function renderPayments(){
+  const stats = paymentStats();
+  document.getElementById('paymentStats').innerHTML = `
+    <div class="card p-5"><p class="text-xs text-ink-500">Total encaissé</p><p class="text-2xl font-bold mt-1">${fcfa(stats.total)}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Échéances partielles</p><p class="text-2xl font-bold mt-1">${stats.partial}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Reste à recevoir</p><p class="text-2xl font-bold text-red-600 mt-1">${fcfa(stats.due)}</p></div>
+  `;
+  const body = document.getElementById('paymentTableBody');
+  const empty = document.getElementById('paymentEmpty');
+  if(state.payments.length===0){
+    body.innerHTML=''; empty.classList.remove('hidden');
+    empty.innerHTML = `<div class="empty">${ic('wallet',34,'class="text-ink-300 mb-3"')}<p class="font-semibold text-ink-700">Aucun paiement enregistré</p><p class="text-sm mt-1">Ouvrez le dossier d'un locataire pour enregistrer son premier paiement.</p></div>`;
+    return;
+  }
+  empty.classList.add('hidden');
+  body.innerHTML = [...state.payments].reverse().map(p=>{
+    const t = state.tenants.find(x=>x.id===p.tenantId);
+    return `<tr>
+      <td data-label="Référence" class="text-ink-500">PAY-${String(p.id).padStart(4,'0')}</td>
+      <td data-label="Locataire" class="font-semibold">${t?t.firstName+' '+t.lastName:'—'}</td>
+      <td data-label="Mois couverts" class="text-ink-500">${p.months.join(', ')}</td>
+      <td data-label="Mode"><span class="badge bg-ink-100 text-ink-600">${p.method}</span></td>
+      <td data-label="Montant" class="text-right pr-4 font-bold">${fcfa(p.amount)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   ACCOUNTING
+   ============================================================ */
+/* ============================================================
+   RECEIPTS — no standalone page; generated on payment, viewable from the tenant dossier
+   ============================================================ */
+function receiptHTML(r){
+  const t = state.tenants.find(x=>x.id===r.tenantId);
+  const p = t ? tenantProperty(t) : null;
+  const a = state.agency;
+  const balance = t ? tenantBalance(t) : 0;
+  return `
+    <div class="border border-ink-200 rounded-xl p-5">
+      <div class="font-bold text-brand-700">${a.name}</div>
+      <div class="text-xs text-ink-500">${a.address} · ${a.phone}</div>
+      <div class="border-t border-dashed border-ink-200 my-4"></div>
+      <div class="flex justify-between text-sm"><span>Reçu N°</span><b>${r.number}</b></div>
+      <div class="flex justify-between text-sm mt-2"><span>Date</span><b>${r.date}</b></div>
+      <div class="flex justify-between text-sm mt-2"><span>Locataire</span><b>${t?t.firstName+' '+t.lastName:'—'}</b></div>
+      <div class="flex justify-between text-sm mt-2"><span>Bien concerné</span><b>${p?p.title:'—'}</b></div>
+      <div class="flex justify-between text-sm mt-2"><span>Période</span><b>${r.months.join(', ')}</b></div>
+      <div class="border-t border-dashed border-ink-200 my-4"></div>
+      <div class="flex justify-between text-base"><span>Montant payé</span><b class="text-brand-700">${fcfa(r.amount)}</b></div>
+      ${balance>0?`<div class="flex justify-between text-sm mt-2 text-red-600"><span>Solde restant</span><b>${fcfa(balance)}</b></div>`:''}
+      <div class="border-t border-dashed border-ink-200 my-4"></div>
+      <div class="text-xs text-ink-500">Généré par ${r.generatedBy||a.name}</div>
+    </div>`;
+}
+function showReceiptModal(id){
+  const r = state.receipts.find(x=>x.id===id);
+  document.getElementById('receiptModalBody').innerHTML = receiptHTML(r);
+  openModal('modal-receipt');
+}
+
+/* ============================================================
+   USERS
+   ============================================================ */
+function openUserModal(){
+  ['uName','uEmail'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('userError').classList.add('hidden');
+  openModal('modal-user');
+}
+function saveUser(){
+  const name = document.getElementById('uName').value.trim();
+  const email = document.getElementById('uEmail').value.trim();
+  if(!name || !email){ document.getElementById('userError').classList.remove('hidden'); return; }
+  state.users.push({id:nextId(), name, email, role: document.getElementById('uRole').value, active:true});
+  closeModal('modal-user');
+  toast('Invitation envoyée à '+name, 'success');
+  renderUsers();
+}
+function toggleUserActive(id){
+  const u = state.users.find(x=>x.id===id);
+  const owners = state.users.filter(x=>x.role==='Gestionnaire principal' && x.active);
+  if(u.active && u.role==='Gestionnaire principal' && owners.length<=1){ toast('Impossible : il doit rester au moins un gestionnaire principal actif','error'); return; }
+  u.active = !u.active; renderUsers(); toast(u.active?'Utilisateur réactivé':'Accès suspendu','success');
+}
+function removeUser(id){
+  const u = state.users.find(x=>x.id===id);
+  const owners = state.users.filter(x=>x.role==='Gestionnaire principal');
+  if(u.role==='Gestionnaire principal' && owners.length<=1){ toast('Impossible de supprimer le seul gestionnaire principal','error'); return; }
+  confirmAction({title:'Retirer cet utilisateur ?', body:`${u.name} n'aura plus accès à ImmoG.`, confirmLabel:'Retirer', onConfirm:()=>{ state.users = state.users.filter(x=>x.id!==id); renderUsers(); toast('Utilisateur retiré','success'); }});
+}
+function renderUsers(){
+  const el = document.getElementById('userList');
+  el.innerHTML = state.users.map((u,i)=>`
+    <div class="flex items-center justify-between p-4 ${i>0?'border-t border-ink-100':''}">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="h-9 w-9 rounded-full ${u.role==='Gestionnaire principal'?'bg-brand-100 text-brand-700':'bg-ink-100 text-ink-600'} flex items-center justify-center text-xs font-bold shrink-0">${u.name.split(' ').map(n=>n[0]).join('')}</div>
+        <div class="min-w-0"><b class="block truncate">${u.name}</b><p class="text-xs text-ink-400 truncate">${u.email}</p></div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="badge ${u.role==='Gestionnaire principal'?'bg-brand-50 text-brand-700':'bg-ink-100 text-ink-600'} hidden sm:inline-flex">${u.role}</span>
+        <span class="badge ${u.active?'bg-emerald-50 text-emerald-700':'bg-ink-100 text-ink-500'}">${u.active?'Actif':'Suspendu'}</span>
+        <button class="icon-btn" title="${u.active?'Suspendre':'Réactiver'}" onclick="toggleUserActive(${u.id})">${ic('toggle',15)}</button>
+        <button class="icon-btn hover:text-red-600" title="Retirer" onclick="removeUser(${u.id})">${ic('trash',15)}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function loadSettingsForm(){
+  const a = state.agency;
+  document.getElementById('setName').value = a.name;
+  document.getElementById('setWhatsapp').value = a.whatsapp;
+  document.getElementById('setPhone').value = a.phone;
+  document.getElementById('setEmail').value = a.email;
+  document.getElementById('setAddress').value = a.address;
+  document.getElementById('setDescription').value = a.description;
+}
+function saveSettings(){
+  state.agency = {
+    name: document.getElementById('setName').value || state.agency.name,
+    whatsapp: document.getElementById('setWhatsapp').value,
+    phone: document.getElementById('setPhone').value,
+    email: document.getElementById('setEmail').value,
+    address: document.getElementById('setAddress').value,
+    description: document.getElementById('setDescription').value,
+  };
+  renderBrand();
+  document.getElementById('settingsSaved').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('settingsSaved').classList.add('hidden'), 2200);
+  toast('Paramètres enregistrés', 'success');
+}
+function renderBrand(){
+  const a = state.agency;
+  document.getElementById('sidebarAgencyName').textContent = a.name;
+  document.getElementById('topbarAgencyName').textContent = a.name;
+  document.getElementById('publicHeaderName').textContent = 'ImmoG · ' + a.name;
+  document.getElementById('settingsPreviewName').textContent = a.name;
+  document.getElementById('settingsPreviewDesc').textContent = a.description;
+  const initials = a.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('settingsPreviewInitials').textContent = initials;
+}
+
+/* ============================================================
+   PUBLIC SITE
+   ============================================================ */
+function publicVisibleProperties(){ return state.properties.filter(p=>p.visible && p.status==='available'); }
+function whatsappLink(propertyTitle){
+  const msg = encodeURIComponent(`Bonjour, je suis intéressé(e) par le bien "${propertyTitle}". Je souhaiterais avoir plus d'informations.`);
+  return `https://wa.me/${state.agency.whatsapp}?text=${msg}`;
+}
+function openPublicSite(){
+  document.getElementById('view-app').classList.remove('active');
+  document.getElementById('view-public').classList.add('active');
+  const a = state.agency;
+  const list = publicVisibleProperties();
+  document.getElementById('publicMain').innerHTML = `
+    <div class="rounded-3xl overflow-hidden bg-gradient-to-r from-brand-800 to-brand-600 text-white p-8 lg:p-12">
+      <p class="text-xs uppercase tracking-widest text-brand-200">Agence immobilière</p>
+      <h1 class="text-3xl lg:text-4xl font-bold mt-2">${a.name}</h1>
+      <p class="text-brand-100 mt-2 max-w-xl">${a.description}</p>
+      <p class="text-sm mt-5 flex items-center gap-1.5">${ic('pin',14)}${a.address} &nbsp;·&nbsp; ${ic('phone',14)}${a.phone}</p>
+    </div>
+    <div class="flex flex-wrap justify-between items-center gap-3 mt-8">
+      <h2 class="text-xl font-bold">${list.length} bien${list.length>1?'s':''} disponible${list.length>1?'s':''}</h2>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6 mt-5">
+      ${list.length ? list.map(p=>`
+        <article class="rounded-2xl border border-ink-200 overflow-hidden hover:shadow-pop transition-shadow">
+          <div class="h-48 ${p.images&&p.images.length?'':'bg-gradient-to-br from-brand-100 via-sky-50 to-brand-50 flex items-center justify-center text-brand-300'}">${p.images&&p.images.length?`<img src="${p.images[0]}" ${IMG_ERR} class="h-48 w-full object-cover">`:ic('building',36)}</div>
+          <div class="p-5">
+            <span class="badge ${p.transaction==='Vente'?'bg-brand-50 text-brand-700':'bg-emerald-50 text-emerald-700'}">${p.transaction}</span>
+            <h3 class="font-bold text-lg mt-3">${p.title}</h3>
+            <p class="text-sm text-ink-500 mt-1 flex items-center gap-1">${ic('pin',13)}${p.neighborhood}, ${p.city}</p>
+            <p class="font-bold text-brand-600 mt-4">${p.transaction==='Vente'?fcfa(p.price):fcfa(p.price)+' / mois'}</p>
+            <button class="btn btn-secondary w-full mt-4" onclick="openPublicProperty(${p.id})">Voir le bien</button>
+          </div>
+        </article>`).join('') : `<div class="empty col-span-full">${ic('building',34,'class="text-ink-300 mb-3"')}<p class="font-semibold text-ink-700">Aucun bien publié pour le moment</p></div>`}
+    </div>
+  `;
+}
+function openPublicProperty(id){
+  const p = state.properties.find(x=>x.id===id);
+  const a = state.agency;
+  document.getElementById('publicMain').innerHTML = `
+    <button class="text-sm text-brand-600 font-semibold flex items-center gap-1.5" onclick="openPublicSite()">${ic('chevronLeft',14)}Tous les biens</button>
+    <div class="grid lg:grid-cols-2 gap-8 mt-6">
+      <div>
+        <div class="h-72 lg:h-[420px] rounded-3xl overflow-hidden ${p.images&&p.images.length?'':'bg-gradient-to-br from-brand-100 via-sky-50 to-brand-50 flex items-center justify-center text-brand-300'}">${p.images&&p.images.length?`<img src="${p.images[0]}" ${IMG_ERR} class="h-full w-full object-cover">`:ic('building',60)}</div>
+        ${p.images&&p.images.length>1?`<div class="grid grid-cols-4 gap-2 mt-2">${p.images.slice(1,5).map(src=>`<img src="${src}" ${IMG_ERR} class="h-16 w-full object-cover rounded-lg">`).join('')}</div>`:''}
+      </div>
+      <div>
+        <span class="badge ${p.transaction==='Vente'?'bg-brand-50 text-brand-700':'bg-emerald-50 text-emerald-700'}">${p.transaction}</span>
+        <h1 class="text-3xl font-bold mt-4">${p.title}</h1>
+        <p class="text-ink-500 mt-2 flex items-center gap-1.5">${ic('pin',14)}${p.neighborhood}, ${p.city}</p>
+        <p class="text-2xl font-bold text-brand-600 mt-6">${p.transaction==='Vente'?fcfa(p.price):fcfa(p.price)+' / mois'}</p>
+        ${p.transaction==='Location'
+          ? `<div class="grid grid-cols-2 gap-3 mt-6"><div class="rounded-xl bg-ink-50 p-4"><p class="text-xs text-ink-500">Caution</p><p class="font-semibold mt-1">${fcfa(p.deposit||0)}</p></div><div class="rounded-xl bg-ink-50 p-4"><p class="text-xs text-ink-500">Conditions</p><p class="font-semibold mt-1">Contrat requis</p></div></div>`
+          : `<div class="rounded-xl bg-ink-50 p-4 mt-6"><p class="text-xs text-ink-500">Statut juridique</p><p class="font-semibold mt-1">${p.legal||'—'}</p></div>`}
+        <h2 class="font-bold text-lg mt-8">Description</h2>
+        <p class="text-ink-600 leading-7 mt-2">${p.description}</p>
+        <a href="${whatsappLink(p.title)}" target="_blank" rel="noopener" class="btn w-full mt-8 text-base" style="background:#25D366;color:#fff">${ic('phone',17)}Contacter l'agence sur WhatsApp</a>
+        <div class="mt-4 text-sm text-ink-500">${a.name} · ${a.address}</div>
+      </div>
+    </div>
+  `;
+}
+function backToApp(){
+  document.getElementById('view-public').classList.remove('active');
+  document.getElementById('view-app').classList.add('active');
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function goToImpayes(){
+  show('locataires');
+  document.getElementById('tenantFilterArrears').checked = true;
+  renderTenantList();
+}
+function renderDashboard(){
+  const available = state.properties.filter(p=>p.status==='available').length;
+  const reserved = state.properties.filter(p=>p.status==='reserved').length;
+  const rented = state.properties.filter(p=>p.status==='rented').length;
+  const sold = state.properties.filter(p=>p.status==='sold').length;
+  document.getElementById('dashPortfolioStats').innerHTML = `
+    <div class="card p-5"><p class="text-xs text-ink-500">Total des biens</p><p class="text-2xl lg:text-3xl font-bold mt-2">${state.properties.length}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Disponibles</p><p class="text-2xl lg:text-3xl font-bold mt-2 text-emerald-600">${available}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Loués</p><p class="text-2xl lg:text-3xl font-bold mt-2 text-sky-600">${rented}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Vendus${reserved?' · '+reserved+' réservé'+(reserved>1?'s':''):''}</p><p class="text-2xl lg:text-3xl font-bold mt-2">${sold}</p></div>
+  `;
+  const due = state.tenants.reduce((s,t)=>s+tenantBalance(t),0);
+  const expected = state.tenants.reduce((s,t)=>s+t.schedule.reduce((x,m)=>x+m.due,0),0);
+  const collected = state.payments.reduce((s,p)=>s+p.amount,0);
+  const lateTotal = state.tenants.reduce((s,t)=>s+tenantArrears(t),0);
+  document.getElementById('dashStats').innerHTML = `
+    <div class="card p-5"><p class="text-xs text-ink-500">Loyers attendus</p><p class="text-2xl lg:text-3xl font-bold mt-2">${fcfa(expected)}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Loyers encaissés</p><p class="text-2xl lg:text-3xl font-bold text-brand-600 mt-2">${fcfa(collected)}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Reste à encaisser</p><p class="text-2xl lg:text-3xl font-bold text-amber-600 mt-2">${fcfa(due)}</p></div>
+    <div class="card p-5"><p class="text-xs text-ink-500">Montants en retard</p><p class="text-2xl lg:text-3xl font-bold text-red-600 mt-2">${fcfa(lateTotal)}</p></div>
+  `;
+  const okCount = state.tenants.filter(t=>tenantBalance(t)<=0).length;
+  const lateCount = state.tenants.filter(t=>tenantArrears(t)>0).length;
+  document.getElementById('dashRentSummary').innerHTML = `
+    <div class="rounded-xl bg-ink-50 p-4"><p class="text-xs text-ink-500">Locataires</p><p class="text-2xl font-bold">${state.tenants.length}</p></div>
+    <div class="rounded-xl bg-emerald-50 p-4"><p class="text-xs text-emerald-700">À jour</p><p class="text-2xl font-bold text-emerald-800">${okCount}</p></div>
+    <div class="rounded-xl bg-red-50 p-4"><p class="text-xs text-red-700">En retard</p><p class="text-2xl font-bold text-red-800">${lateCount}</p></div>
+  `;
+  const overdueTenants = state.tenants.filter(t=>tenantBalance(t)>0);
+  document.getElementById('dashOverdue').innerHTML = overdueTenants.length ? overdueTenants.map(t=>`
+    <div class="flex items-center justify-between gap-3 text-sm">
+      <button class="text-left hover:underline" onclick="openTenantDetail(${t.id})"><span class="font-medium">${t.firstName} ${t.lastName}</span></button>
+      <div class="flex items-center gap-3 shrink-0">
+        <span class="font-semibold text-red-600">${fcfa(tenantBalance(t))} dû</span>
+        <button class="btn-sm btn btn-secondary" onclick="quickRelance(${t.id})">${ic('message',13)}Relancer</button>
+      </div>
+    </div>`).join('') : `<p class="text-sm text-emerald-700 font-medium flex items-center gap-1.5">${ic('check',15)}Tous les locataires sont à jour</p>`;
+  document.getElementById('dashActivity').innerHTML = state.activity.length ? state.activity.map(a=>`
+    <div><p class="font-semibold">${a.title}</p><p class="text-ink-500">${a.sub}</p><p class="text-xs text-ink-400 mt-0.5">${a.date}</p></div>
+  `).join('') : `<p class="text-ink-400">Aucune activité pour l'instant.</p>`;
+}
+
+/* ============================================================
+   BRAND MARKS + GLOBAL RENDER
+   ============================================================ */
+function paintBrandMarks(){
+  document.getElementById('brandMarkLogin').innerHTML = ic('building',22);
+  document.getElementById('brandMarkLoginMobile').innerHTML = ic('building',18);
+  document.getElementById('brandMarkSidebar').textContent = 'IG';
+  document.getElementById('publicHeaderMark').innerHTML = ic('building',18);
+  document.getElementById('backIcon1').innerHTML = ic('chevronLeft',14);
+  document.getElementById('qaAddProperty').innerHTML = ic('plus',14) + 'Ajouter un bien';
+  document.getElementById('qaAddTenant').innerHTML = ic('plus',14) + 'Ajouter un locataire';
+  document.getElementById('qaAddPayment').innerHTML = ic('wallet',14) + 'Enregistrer un paiement';
+  document.getElementById('qaImpayes').innerHTML = ic('alert',14) + 'Voir les impayés';
+  document.getElementById('qaAddUser').innerHTML = ic('userPlus',14) + 'Ajouter un utilisateur';
+  document.getElementById('backIcon2').innerHTML = ic('chevronLeft',14);
+  document.getElementById('propModalClose').innerHTML = ic('x',16);
+  document.getElementById('tenantModalClose').innerHTML = ic('x',16);
+  document.getElementById('userModalClose').innerHTML = ic('x',16);
+  document.getElementById('receiptModalClose').innerHTML = ic('x',16);
+  document.getElementById('newPropAddLabel').innerHTML = ic('plus',15) + 'Ajouter des photos';
+  document.querySelector('[onclick="toggleSidebar()"]').innerHTML = ic('menu',16);
+  document.querySelector('[onclick="openPublicSite()"]').innerHTML = ic('extLink',15) + 'Vitrine publique';
+  document.querySelector('[onclick="openPropertyModal()"]').innerHTML = ic('plus',15) + 'Nouveau bien';
+  document.querySelector('[onclick="doLogout()"]').innerHTML = ic('logout',16);
+  document.querySelector('[onclick="backToApp()"]').innerHTML = ic('chevronLeft',14) + 'Retour au dashboard';
+  document.querySelector('#sec-biens [onclick="openPropertyModal()"]').innerHTML = ic('plus',15) + 'Ajouter un bien';
+  document.querySelector('#sec-locataires [onclick="openTenantModal()"]').innerHTML = ic('plus',15) + 'Nouveau locataire';
+  document.querySelector('#sec-paiements [onclick="openTenantPicker()"]').innerHTML = ic('plus',15) + 'Enregistrer un paiement';
+  document.querySelector('#sec-utilisateurs [onclick="openUserModal()"]').innerHTML = ic('userPlus',15) + 'Inviter un gestionnaire';
+  document.getElementById('propSearchIcon').innerHTML = ic('search',15);
+  document.getElementById('tenantSearchIcon').innerHTML = ic('search',15);
+  document.getElementById('receiptPrintBtn').innerHTML = ic('printer',15) + 'Imprimer';
+  document.querySelector('[onclick="saveSettings()"]').innerHTML = ic('check',15) + 'Enregistrer les modifications';
+}
+function renderAll(){
+  renderDashboard();
+  renderProperties();
+  renderPropertyDetail();
+  renderTenantList();
+  renderTenantDetail();
+  renderPayments();
+  renderUsers();
+  renderBrand();
+}
+
+/* Init */
+paintBrandMarks();
+loadSettingsForm();
+applyRoleVisibility();
+logActivity('Bienvenue sur ImmoG', 'Votre espace de démonstration est prêt');
+renderAll();
 </script>
 </body>
 </html>
